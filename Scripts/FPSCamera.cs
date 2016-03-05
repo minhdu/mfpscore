@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class FPSCamera : UISingleton<FPSCamera> {
+public class FPSCamera : Singleton<FPSCamera> {
 
 	TouchAreaData cameraHandleArea = new TouchAreaData();
 

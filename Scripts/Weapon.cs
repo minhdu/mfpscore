@@ -36,6 +36,25 @@ public class Weapon : IGameModel
 		y = -0.044f,
 		z=-0.45f	
 	};
+
+	Transform _muzzleFlashTransform;
+	public Transform MuzzleFlashTransform {
+		get {
+			if (_muzzleFlashTransform == null)
+				_muzzleFlashTransform = muzzleFlash.GetComponent<Transform> ();
+			return _muzzleFlashTransform;
+		}
+	}
+
+	Animation _anim;
+	public Animation Anim {
+		get {
+			if (_anim == null)
+				_anim = weaponPrefab.GetComponent<Animation> ();
+			return _anim;
+		}
+	}
+
 	#endregion
 
 	#region Serialization

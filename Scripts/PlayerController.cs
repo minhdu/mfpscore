@@ -2,8 +2,31 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class PlayerController : UISingleton<PlayerController> {
-	
+public class PlayerController : Singleton<PlayerController> {
+
+	public enum WeaponAnimation {
+		IDLE   = 0,
+		SHOOT,
+		RELOAD,
+		HIDE,
+		SHOW,
+		ZOOM_IN,
+		ZOOM_OUT,
+		MELEE
+	}
+
+	string[] animationsName = new string[] {
+		"Idle",
+		"Shoot",
+		"Reload",
+		"Hide",
+		"Show",
+		"ZoomIn",
+		"ZoomOut",
+		"Melee"
+	};
+
+
 	public LayerMask collisionLayers = -1;
 	public GameObject sparkle;
 	public List<Weapon> weapons = new List<Weapon>();
@@ -17,7 +40,15 @@ public class PlayerController : UISingleton<PlayerController> {
 		}
 	}
 
-	[SerializeField]
+	AudioSource _audioSource;
+	public AudioSource AudioSource {
+		get {
+			if (_audioSource == null)
+				_audioSource = GetComponent<AudioSource> ();
+			return _audioSource;
+		}
+	}
+		
 	Weapon currentWeapon;
 	public Weapon CurrentWeapon {
 		get {
@@ -67,8 +98,12 @@ public class PlayerController : UISingleton<PlayerController> {
 		}
 	}
 
+	bool isZoomingIn = false;
+	bool isZoomingOut = false;
+
 	void Start () {
 		worldSpaceCenter = new Vector3 (ScreenHelper.HalfScreenSize.x, ScreenHelper.HalfScreenSize.y, 0);
+		currentWeapon = weapons [0];
 	}
 
 	void Update () {
@@ -82,7 +117,13 @@ public class PlayerController : UISingleton<PlayerController> {
 		if(currentWeapon.isFirearms && currentWeapon.remainBullet > 0 && currentWeapon.remainBulletInClip <= 0) {
 			DoReload ();
 		}
+
+		if (!isReloading && !isShooting && !isChanging && !isAiming) {
+			PlayAnimation (WeaponAnimation.IDLE);
+		}
 	}
+
+#region Action Processor
 
 	void Shoot ()
 	{
@@ -90,6 +131,8 @@ public class PlayerController : UISingleton<PlayerController> {
 		{
 			if (Time.time > currentWeapon.nextFireTime + currentWeapon.fireRate)
 			{
+				PlayAnimation (WeaponAnimation.SHOOT);
+
 				currentWeapon.remainBulletInClip -=1;
 
 				//Apply Slide Effect
@@ -121,20 +164,19 @@ public class PlayerController : UISingleton<PlayerController> {
 				if(currentWeapon.muzzleFlash)
 					currentWeapon.muzzleFlash.enabled = true;
 				//audio.PlayOneShot(CurrentWeapon.shootSound);
-				if(!GetComponent<AudioSource>().isPlaying)
+				if(!AudioSource.isPlaying)
 				{
-					GetComponent<AudioSource>().PlayOneShot(currentWeapon.shootSound);
+					AudioSource.PlayOneShot(currentWeapon.shootSound);
 				}
 
 				muzzleRotate +=90;
-				currentWeapon.muzzleFlash.gameObject.transform.localRotation = Quaternion.AngleAxis(muzzleRotate, Vector3.forward);
+				currentWeapon.MuzzleFlashTransform.localRotation = Quaternion.AngleAxis(muzzleRotate, Vector3.forward);
 				currentWeapon.nextFireTime = Time.time;
 
 				//Instantiate BulletUp
 
 
-			}else
-			{
+			}else {
 				if(currentWeapon.muzzleFlash)
 					currentWeapon.muzzleFlash.enabled = false;
 				FPSCamera.Instance.zPosition = 0;
@@ -154,49 +196,54 @@ public class PlayerController : UISingleton<PlayerController> {
 	IEnumerator Reload()
 	{
 		isReloading = true;
-		//        crossHair.gameObject.SetActive(false);
-		inClin = 7.5f;
+		//crossHair.gameObject.SetActive(false);
+		//inClin = 7.5f;
 		if (CurrentWeapon.remainBulletInClip < currentWeapon.bulletPerClip) {
-			currentWeapon.remainBullet += (int)currentWeapon.remainBulletInClip;
+			currentWeapon.remainBullet += currentWeapon.remainBulletInClip;
 			currentWeapon.remainBulletInClip = 0;
 
 			if (currentWeapon.remainBullet > currentWeapon.bulletPerClip) {
 
 				//audio.Stop();
-				GetComponent<AudioSource> ().PlayOneShot (CurrentWeapon.audioReload);
 
-				yield return new WaitForSeconds (currentWeapon.audioReload.length - currentWeapon.audioReload.length * (currentWeapon.reloadSpeed - 1));
+				PlayAnimation (WeaponAnimation.RELOAD);
+
+				AudioSource.PlayOneShot (CurrentWeapon.audioReload);
+
+				yield return new WaitForSeconds (PlayAnimation (WeaponAnimation.RELOAD));
+				//yield return new WaitForSeconds (currentWeapon.audioReload.length - currentWeapon.audioReload.length * (currentWeapon.reloadSpeed - 1));
 
 				currentWeapon.remainBulletInClip = currentWeapon.bulletPerClip;
 				currentWeapon.remainBullet -= CurrentWeapon.bulletPerClip;
 			}
 			else 
 			{
-				yield return new WaitForSeconds (2);
+					//yield return new WaitForSeconds (2);
 					currentWeapon.remainBulletInClip = currentWeapon.remainBullet;
 					currentWeapon.remainBullet = 0;
 			}
 
 			currentWeapon.currentAmmoClip = (float)currentWeapon.remainBullet/(float)currentWeapon.bulletPerClip;
-//		UpdateGUI(GUIComponent.Clip);
+//			UpdateGUI(GUIComponent.Clip);
 		}
 		isReloading = false;
 
 		//UpdateLabel ();
 
 //		UpdateGUI(GUIComponent.Bullet);
-		inClin = 0;
-		//        crossHair.gameObject.SetActive(true);
+//		inClin = 0;
+//      crossHair.gameObject.SetActive(true);
 	}
 
 	IEnumerator ChangeWeapon()
 	{
-		//        crossHair.gameObject.SetActive(false);
+		//crossHair.gameObject.SetActive(false);
 
-		yield return new WaitForSeconds(0.5f);
+		isChanging = true;
+
+		yield return new WaitForSeconds(PlayAnimation (WeaponAnimation.HIDE));
 
 		currentWeaponIndex++;
-
 		currentWeapon.weaponPrefab.SetActive(false);
 
 		if(currentWeaponIndex > weapons.Count - 1)
@@ -205,34 +252,60 @@ public class PlayerController : UISingleton<PlayerController> {
 		}
 
 		currentWeapon = weapons[currentWeaponIndex];
-
 		currentWeapon.weaponPrefab.SetActive(true);
+		yield return new WaitForSeconds(PlayAnimation (WeaponAnimation.SHOW));
 
 		//UpdateLabel();
 
 		isChanging = false;
 
-		inClin = 0;
+		//inClin = 0;
 
-		isReloading = false;
-
-		//        crossHair.gameObject.SetActive(true);
+		//crossHair.gameObject.SetActive(true);
 	}
+
+	IEnumerator Aim () {
+		if (isAiming) {
+			isZoomingIn = true;
+			yield return new WaitForSeconds(PlayAnimation(WeaponAnimation.ZOOM_IN));
+			isZoomingIn = false;
+		} else {
+			isZoomingOut = true;
+			yield return new WaitForSeconds (PlayAnimation (WeaponAnimation.ZOOM_OUT));
+			isZoomingOut = false;
+		}
+	}
+
+	public float PlayAnimation (WeaponAnimation anim) {
+		string clipName = animationsName [(int)anim];
+		AnimationClip clip = currentWeapon.Anim.GetClip (clipName);
+		if (clip != null) {
+			currentWeapon.Anim.clip = clip;
+			currentWeapon.Anim.Play();
+			return clip.length;
+		}
+
+		return 0;
+	}
+
+#endregion
+
+#region Input
 
 	public void DoSight()
 	{
-		//        crossHair.gameObject.SetActive(!crossHair.gameObject.activeSelf);
+		//crossHair.gameObject.SetActive(!crossHair.gameObject.activeSelf);
 		isAiming = !isAiming;
+		StartCoroutine (Aim ());
 	}
 
 	public void DoChange()
 	{
 		//if(isChanging && !isReloading && WeaponList.Count > 1)
-		if(!isChanging && !isReloading)
+		if(!isChanging && !isReloading && !isZoomingIn && !isZoomingOut)
 		{
 			isAiming = false;
-			isReloading = true;
-			inClin = 15f;
+			//inClin = 15f;
 			StartCoroutine(ChangeWeapon());
 		}
 	}
@@ -240,7 +313,7 @@ public class PlayerController : UISingleton<PlayerController> {
 	public void DoReload()
 	{
 		//if(!isReloading && CurrentWeapon.bulletinMagasine < CurrentWeapon.bulletperClip)
-		if(!isReloading)
+		if(!isReloading && !isZoomingIn && !isZoomingOut)
 		{
 			isAiming = false;
 			StartCoroutine (Reload ());
@@ -248,9 +321,14 @@ public class PlayerController : UISingleton<PlayerController> {
 	}
 
 	public void DoShoot (bool shoot) {
-		if (!isReloading && currentWeapon.remainBulletInClip > 0) {
+		if (!isReloading && currentWeapon.remainBulletInClip > 0 && !isZoomingIn && !isZoomingOut) {
 			isShooting = shoot;
+			if (!isShooting) {
+				if(currentWeapon.muzzleFlash.enabled)
+					currentWeapon.muzzleFlash.enabled = false;
+			}
 		}
 	}
 
+#endregion
 }
