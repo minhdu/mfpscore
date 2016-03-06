@@ -30,6 +30,7 @@ public class PlayerController : Singleton<PlayerController> {
 	public LayerMask collisionLayers = -1;
 	public GameObject sparkle;
 	public List<Weapon> weapons = new List<Weapon>();
+	public GameObject crossHair;
 
 	Transform _transform;
 	public Transform Transform {
@@ -222,7 +223,7 @@ public class PlayerController : Singleton<PlayerController> {
 	IEnumerator Reload()
 	{
 		isReloading = true;
-		//crossHair.gameObject.SetActive(false);
+		crossHair.gameObject.SetActive(false);
 		//inClin = 7.5f;
 		if (CurrentWeapon.remainBulletInClip < currentWeapon.bulletPerClip) {
 			currentWeapon.remainBullet += currentWeapon.remainBulletInClip;
@@ -258,12 +259,12 @@ public class PlayerController : Singleton<PlayerController> {
 
 //		UpdateGUI(GUIComponent.Bullet);
 //		inClin = 0;
-//      crossHair.gameObject.SetActive(true);
+      crossHair.gameObject.SetActive(true);
 	}
 
 	IEnumerator ChangeWeapon()
 	{
-		//crossHair.gameObject.SetActive(false);
+		crossHair.gameObject.SetActive(false);
 
 		isChanging = true;
 
@@ -287,7 +288,7 @@ public class PlayerController : Singleton<PlayerController> {
 
 		//inClin = 0;
 
-		//crossHair.gameObject.SetActive(true);
+		crossHair.gameObject.SetActive(true);
 	}
 
 	IEnumerator Aim () {
@@ -323,7 +324,7 @@ public class PlayerController : Singleton<PlayerController> {
 
 	public void DoSight()
 	{
-		//crossHair.gameObject.SetActive(!crossHair.gameObject.activeSelf);
+		crossHair.gameObject.SetActive(!crossHair.gameObject.activeSelf);
 		isAiming = !isAiming;
 		StartCoroutine (Aim ());
 	}

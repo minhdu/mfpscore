@@ -86,7 +86,7 @@ public class FPSCamera : Singleton<FPSCamera> {
 			// Move Phase Begin
 			else if (touch.phase == TouchPhase.Moved)
 			{
-
+				CrossHair.Instance.Zoom ();
 				if (cameraHandleArea.FingerDown && cameraHandleArea.FingerId == touch.fingerId){
 					slideInput = touch.deltaPosition * Time.smoothDeltaTime;
 				}
@@ -102,6 +102,7 @@ public class FPSCamera : Singleton<FPSCamera> {
 			else if (touch.phase == TouchPhase.Ended || touch.phase == TouchPhase.Canceled)
 			{		
 				if (cameraHandleArea.FingerDown && cameraHandleArea.FingerId == touch.fingerId){
+					CrossHair.Instance.Reverts ();
 					slideInput =  Vector2.zero;
 					cameraHandleArea.FingerDown = false;
 					cameraHandleArea.FingerId = -1;
