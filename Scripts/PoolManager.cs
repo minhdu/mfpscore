@@ -6,15 +6,13 @@ public enum PoolTag {
 	BULLET_HOLE
 }
 
-public class PoolManager : MonoBehaviour {
+public class PoolManager : Singleton<PoolManager> {
 
-	// Use this for initialization
-	void Start () {
+	public void Release (GameObject obj, PoolTag tag) {
 		
 	}
-	
-	// Update is called once per frame
-	void Update () {
-	
+
+	public GameObject Get (PoolTag tag) {
+		return null;
 	}
 }

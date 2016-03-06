@@ -59,9 +59,8 @@ public class PlayerController : Singleton<PlayerController> {
 
 	int currentWeaponIndex = 0;
 
-	Ray gunRay;
-	RaycastHit gunHit;
-	public Vector3 HitPoint { get; set; }
+	Ray bulletRay;
+	RaycastHit bulletHit;
 	int muzzleRotate = 45;
 	Vector3 worldSpaceCenter = Vector3.zero;
 
@@ -109,12 +108,13 @@ public class PlayerController : Singleton<PlayerController> {
 	}
 
 	void Update () {
-		Vector3 spreadRange = Vector3.zero;
-		spreadRange.x = Random.Range (-currentWeapon.spreadFactor, currentWeapon.spreadFactor);
-		spreadRange.y = Random.Range (-currentWeapon.spreadFactor, currentWeapon.spreadFactor);
-		gunRay = FPSCamera.Instance.PlayerCamera.ScreenPointToRay(worldSpaceCenter+spreadRange);
-		Physics.Raycast(gunRay, out gunHit, 1000, collisionLayers.value);
-		HitPoint = gunRay.GetPoint(1000);
+
+		// Shooting ray
+		float spreadRange = currentWeapon.spreadRange - currentWeapon.spreadRange * currentWeapon.gunAccurary;
+		float spreadRangeX = Random.Range (-spreadRange, spreadRange);
+		float spreadRangeY = Random.Range (-spreadRange, spreadRange);
+		bulletRay = FPSCamera.Instance.PlayerCamera.ScreenPointToRay(worldSpaceCenter+new Vector3(spreadRangeX, spreadRangeY, 0));
+		Physics.Raycast(bulletRay, out bulletHit, currentWeapon.shootRange, collisionLayers.value);
 
 		if (isShooting) {
 			Shoot ();
@@ -140,55 +140,53 @@ public class PlayerController : Singleton<PlayerController> {
 			{
 				PlayAnimation (WeaponAnimation.SHOOT);
 
-				// Ray
-//				Rigidbody clone;
-//				clone = Instantiate(currentWeapon.projectilePrefab, Transform.position, Transform.rotation) as Rigidbody;
+				// Projectile
+//				Rigidbody clone = Instantiate(currentWeapon.projectilePrefab, Transform.position, Transform.rotation) as Rigidbody;
 //				clone.velocity = Transform.TransformDirection(Vector3.forward * 200);
 
 				currentWeapon.remainBulletInClip -=1;
 
-				//Apply Slide Effect
+				// Apply slide effect
 				FPSCamera.Instance.zSmooth = currentWeapon.zSmooth;
 				FPSCamera.Instance.yPosition = currentWeapon.yPosition;
 				FPSCamera.Instance.zPosition = -0.1f;
 
-				//sight for a collider
-				if (gunHit.collider)
+				// Sight for a collider
+				if (bulletHit.collider)
 				{
 					//if(hit.collider.tag != "Spwan")
 					//{
-					gunHit.collider.SendMessage("Hit",currentWeapon.weaponPower,SendMessageOptions.DontRequireReceiver);
+					bulletHit.collider.SendMessage("Hit",currentWeapon.weaponPower,SendMessageOptions.DontRequireReceiver);
 
-					if(gunHit.collider.gameObject.GetComponent<HitEnemy>())
-					{
-						gunHit.collider.gameObject.GetComponent<HitEnemy>().Hurt(currentWeapon.baseDamage);
-
+					HitEnemy enemy = bulletHit.collider.gameObject.GetComponent<HitEnemy> ();
+					// Hit enemy
+					if(enemy != null) {
+						bulletHit.collider.gameObject.GetComponent<HitEnemy>().Hurt(currentWeapon.baseDamage);
+						HitMark.Instance.Hit ();
 						//Instantiate  (BloodZombie, hit.point, Quaternion.identity); 
 					}
-					else
-					{
+					// Hit environment
+					else {
 						// Sparkle
-						Instantiate  (sparkle, gunHit.point, Quaternion.identity); 
+						Instantiate  (sparkle, bulletHit.point, Quaternion.identity); 
 
 						// Hole
-						var hitRotation = Quaternion.FromToRotation(Vector3.forward, gunHit.normal);
-						Instantiate(currentWeapon.bulletHole, gunHit.point, hitRotation);
-
+						Quaternion hitRotation = Quaternion.FromToRotation(Vector3.forward, bulletHit.normal);
+						Instantiate(currentWeapon.bulletHole, bulletHit.point+bulletHit.normal*0.1f, hitRotation);
 					}
 					//}
 				} 
 				//UpdateGUI(GUIComponent.Bullet);
 				if(currentWeapon.muzzleFlash)
 					currentWeapon.muzzleFlash.enabled = true;
-
-				if (currentWeapon.projectileRender)
-					currentWeapon.projectileRender.enabled = true;
-				
-				//audio.PlayOneShot(CurrentWeapon.shootSound);
-				if(!AudioSource.isPlaying)
-				{
-					AudioSource.PlayOneShot(currentWeapon.shootSound);
-				}
+//				if (currentWeapon.projectileRender)
+//					currentWeapon.projectileRender.enabled = true;
+//				
+				AudioSource.PlayOneShot(CurrentWeapon.shootSound);
+//				if(!AudioSource.isPlaying)
+//				{
+//					AudioSource.PlayOneShot(currentWeapon.shootSound);
+//				}
 
 				//muzzleRotate +=Random.Range(45,90);
 				muzzleRotate += 90;
@@ -204,8 +202,8 @@ public class PlayerController : Singleton<PlayerController> {
 			}else {
 				if(currentWeapon.muzzleFlash)
 					currentWeapon.muzzleFlash.enabled = false;
-				if (currentWeapon.projectileRender)
-					currentWeapon.projectileRender.enabled = false;
+//				if (currentWeapon.projectileRender)
+//					currentWeapon.projectileRender.enabled = false;
 				FPSCamera.Instance.zPosition = 0;
 				FPSCamera.Instance.zSmooth = 8f;
 			}
@@ -359,6 +357,11 @@ public class PlayerController : Singleton<PlayerController> {
 					currentWeapon.muzzleFlash.enabled = false;
 			}
 		}
+	}
+
+	public Animation grenade;
+	public void DoThrowGrenade () {
+		grenade.Play ();
 	}
 
 #endregion

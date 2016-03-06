@@ -15,9 +15,12 @@ public class Weapon : IGameModel
 
 	#region For Gun
 	public float fireRate;
-	public float spreadFactor;
-	public int bulletPerClip;
+	public float shootRange;
+	public float spreadRange;
+	public float gunAccurary;
+	public int bulletPerClip; 
 	public float reloadSpeed;
+
 	public Renderer muzzleFlash;
 	public AudioClip shootSound;
 	public AudioClip audioReload;
