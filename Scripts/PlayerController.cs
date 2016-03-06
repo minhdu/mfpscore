@@ -107,7 +107,10 @@ public class PlayerController : Singleton<PlayerController> {
 	}
 
 	void Update () {
-		gunRay = FPSCamera.Instance.PlayerCamera.ScreenPointToRay(worldSpaceCenter);
+		Vector3 spreadRange = Vector3.zero;
+		spreadRange.x = Random.Range (-currentWeapon.spreadFactor, currentWeapon.spreadFactor);
+		spreadRange.y = Random.Range (-currentWeapon.spreadFactor, currentWeapon.spreadFactor);
+		gunRay = FPSCamera.Instance.PlayerCamera.ScreenPointToRay(worldSpaceCenter+spreadRange);
 		Physics.Raycast(gunRay, out gunHit, 1000, collisionLayers.value);
 
 		if (isShooting) {
@@ -157,6 +160,9 @@ public class PlayerController : Singleton<PlayerController> {
 					{
 
 						Instantiate  (sparkle, gunHit.point, Quaternion.identity); 
+						var hitRotation = Quaternion.FromToRotation(Vector3.forward, gunHit.normal);
+						Instantiate(currentWeapon.bulletHole, gunHit.point, hitRotation);
+
 					}
 					//}
 				} 
