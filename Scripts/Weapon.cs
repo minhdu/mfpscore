@@ -23,6 +23,7 @@ public class Weapon : IGameModel
 	public AudioClip audioReload;
 	public GameObject bloodPrefab;
 	public GameObject bulletHole;
+	public Renderer projectileRender;
 
 	public float zSmooth = 10;
 
@@ -34,9 +35,9 @@ public class Weapon : IGameModel
 	public float aimAngle = 358.5694f;
 	public Vector3 aimPosition = new Vector3
 	{
-		x =-0.1615f,
+		x = -0.1615f,
 		y = -0.044f,
-		z=-0.45f	
+		z = -0.45f
 	};
 
 	Transform _muzzleFlashTransform;

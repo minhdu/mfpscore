@@ -60,6 +60,7 @@ public class PlayerController : Singleton<PlayerController> {
 
 	Ray gunRay;
 	RaycastHit gunHit;
+	public Vector3 HitPoint { get; set; }
 	int muzzleRotate = 45;
 	Vector3 worldSpaceCenter = Vector3.zero;
 
@@ -112,6 +113,7 @@ public class PlayerController : Singleton<PlayerController> {
 		spreadRange.y = Random.Range (-currentWeapon.spreadFactor, currentWeapon.spreadFactor);
 		gunRay = FPSCamera.Instance.PlayerCamera.ScreenPointToRay(worldSpaceCenter+spreadRange);
 		Physics.Raycast(gunRay, out gunHit, 1000, collisionLayers.value);
+		HitPoint = gunRay.GetPoint(1000);
 
 		if (isShooting) {
 			Shoot ();
@@ -121,8 +123,8 @@ public class PlayerController : Singleton<PlayerController> {
 			DoReload ();
 		}
 
-		if (!isReloading && !isShooting && !isChanging && !isAiming) {
-			PlayAnimation (WeaponAnimation.IDLE);
+		if (!isReloading && !isShooting && !isChanging && !isAiming && !isZoomingIn && !isZoomingOut) {
+			PlayAnimation (WeaponAnimation.IDLE, WrapMode.Loop);
 		}
 	}
 
@@ -135,6 +137,11 @@ public class PlayerController : Singleton<PlayerController> {
 			if (Time.time > currentWeapon.nextFireTime + currentWeapon.fireRate)
 			{
 				PlayAnimation (WeaponAnimation.SHOOT);
+
+				// Ray
+//				Rigidbody clone;
+//				clone = Instantiate(currentWeapon.projectilePrefab, Transform.position, Transform.rotation) as Rigidbody;
+//				clone.velocity = Transform.TransformDirection(Vector3.forward * 200);
 
 				currentWeapon.remainBulletInClip -=1;
 
@@ -158,8 +165,10 @@ public class PlayerController : Singleton<PlayerController> {
 					}
 					else
 					{
-
+						// Sparkle
 						Instantiate  (sparkle, gunHit.point, Quaternion.identity); 
+
+						// Hole
 						var hitRotation = Quaternion.FromToRotation(Vector3.forward, gunHit.normal);
 						Instantiate(currentWeapon.bulletHole, gunHit.point, hitRotation);
 
@@ -169,14 +178,22 @@ public class PlayerController : Singleton<PlayerController> {
 				//UpdateGUI(GUIComponent.Bullet);
 				if(currentWeapon.muzzleFlash)
 					currentWeapon.muzzleFlash.enabled = true;
+
+				if (currentWeapon.projectileRender)
+					currentWeapon.projectileRender.enabled = true;
+				
 				//audio.PlayOneShot(CurrentWeapon.shootSound);
 				if(!AudioSource.isPlaying)
 				{
 					AudioSource.PlayOneShot(currentWeapon.shootSound);
 				}
 
-				muzzleRotate +=90;
-				currentWeapon.MuzzleFlashTransform.localRotation = Quaternion.AngleAxis(muzzleRotate, Vector3.forward);
+				//muzzleRotate +=Random.Range(45,90);
+				muzzleRotate += 90;
+
+				//currentWeapon.MuzzleFlashTransform.localRotation = Quaternion.AngleAxis(muzzleRotate, Vector3.forward);
+				Vector3 muzzleAngle = currentWeapon.MuzzleFlashTransform.localRotation.eulerAngles;
+				currentWeapon.MuzzleFlashTransform.localRotation = Quaternion.Euler (muzzleAngle.x, muzzleAngle.y, muzzleRotate);
 				currentWeapon.nextFireTime = Time.time;
 
 				//Instantiate BulletUp
@@ -185,6 +202,8 @@ public class PlayerController : Singleton<PlayerController> {
 			}else {
 				if(currentWeapon.muzzleFlash)
 					currentWeapon.muzzleFlash.enabled = false;
+				if (currentWeapon.projectileRender)
+					currentWeapon.projectileRender.enabled = false;
 				FPSCamera.Instance.zPosition = 0;
 				FPSCamera.Instance.zSmooth = 8f;
 			}
@@ -282,11 +301,14 @@ public class PlayerController : Singleton<PlayerController> {
 		}
 	}
 
-	public float PlayAnimation (WeaponAnimation anim) {
+	public float PlayAnimation (WeaponAnimation anim, WrapMode wrapMode = WrapMode.Default) {
 		string clipName = animationsName [(int)anim];
+		if (wrapMode == WrapMode.Loop && currentWeapon.Anim.IsPlaying (clipName))
+			return 0;
 		AnimationClip clip = currentWeapon.Anim.GetClip (clipName);
 		if (clip != null) {
 			currentWeapon.Anim.clip = clip;
+			currentWeapon.Anim.wrapMode = wrapMode;
 			currentWeapon.Anim.Play();
 			return clip.length;
 		}
