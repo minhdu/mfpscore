@@ -117,6 +117,7 @@ public class PlayerController : Singleton<PlayerController> {
 
 		if (isShooting) {
 			Shoot ();
+			CrossHair.Instance.Zoom ();
 		}
 
 		if(currentWeapon.isFirearms && currentWeapon.remainBullet > 0 && currentWeapon.remainBulletInClip <= 0) {
@@ -352,6 +353,7 @@ public class PlayerController : Singleton<PlayerController> {
 		if (!isReloading && currentWeapon.remainBulletInClip > 0 && !isZoomingIn && !isZoomingOut) {
 			isShooting = shoot;
 			if (!isShooting) {
+				CrossHair.Instance.Reverts();
 				if(currentWeapon.muzzleFlash.enabled)
 					currentWeapon.muzzleFlash.enabled = false;
 			}

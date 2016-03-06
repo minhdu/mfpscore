@@ -24,6 +24,8 @@ public class Weapon : IGameModel
 	public GameObject bloodPrefab;
 	public GameObject bulletHole;
 	public Renderer projectileRender;
+	public GameObject crossHair;
+
 
 	public float zSmooth = 10;
 

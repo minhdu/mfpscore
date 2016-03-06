@@ -27,11 +27,15 @@ public class FPSCamera : Singleton<FPSCamera> {
 	public float yCoef = 0;
 
 	public float rotateSensitive = 1.5f;
+
+	public Vector2 shakeAmount;
+	public Vector3 originalPosition;
+
 	public Transform weaponRoot;
 
 	public bool isInited = false;
 
-	Transform playerCamTrans;
+	Transform cameraTrans;
 	Camera playerCamera;
 	public Camera PlayerCamera {
 		get {
@@ -42,6 +46,7 @@ public class FPSCamera : Singleton<FPSCamera> {
 		}
 	}
 
+
 	void Start () {
 		InitCamera ();
 	}
@@ -50,8 +55,9 @@ public class FPSCamera : Singleton<FPSCamera> {
 		cameraHandleArea.FingerBound = new Rect(0,0, ScreenHelper.ScreenSize.x*3, ScreenHelper.ScreenSize.y);
 		mTransform = GetComponent<Transform> ();
 		playerController = GetComponentInParent<PlayerController> ();
-		playerCamTrans = PlayerCamera.GetComponent<Transform> ();
+		cameraTrans = PlayerCamera.GetComponent<Transform> ();
 		originalRotation = mTransform.rotation.eulerAngles.y;
+		originalPosition = cameraTrans.localPosition;
 		isInited = true;
 	}
 
@@ -114,7 +120,7 @@ public class FPSCamera : Singleton<FPSCamera> {
 		yRotation = Mathf.Clamp(yRotation, minYAngle, maxYAngle);
 
 		playerController.Transform.rotation =  Quaternion.Slerp (playerController.Transform.rotation, Quaternion.Euler(0, originalRotation + xRotation, 0),  0.1f);
-		playerCamTrans.localRotation =  Quaternion.Slerp (playerCamTrans.localRotation, Quaternion.Euler(playerCamTrans.localRotation.x - yRotation, 0, 0),  0.1f);
+		cameraTrans.localRotation =  Quaternion.Slerp (cameraTrans.localRotation, Quaternion.Euler(cameraTrans.localRotation.x - yRotation, 0, 0),  0.1f);
 	}
 
 	void HandleWeapon () {
