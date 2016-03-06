@@ -34,13 +34,10 @@ public class Weapon : IGameModel
 	public int remainBullet;
 	public float nextFireTime;
 	public int remainBulletInClip;
-	public float aimAngle = 358.5694f;
-	public Vector3 aimPosition = new Vector3
-	{
-		x = -0.1615f,
-		y = -0.044f,
-		z = -0.45f
-	};
+	public float aimAngleX = 0f;
+	public float aimAngleY = 0f;
+	public float aimAngleZ = 0f;
+	public Vector3 aimPosition;
 
 	Transform _muzzleFlashTransform;
 	public Transform MuzzleFlashTransform {

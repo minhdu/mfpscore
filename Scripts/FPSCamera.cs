@@ -163,7 +163,7 @@ public class FPSCamera : Singleton<FPSCamera> {
 			weaponRoot.localPosition = Vector3.Lerp(weaponRoot.localPosition, new Vector3(currentWeapon.aimPosition.x,
 				yPosition + currentWeapon.aimPosition.y, zPosition / 2 + currentWeapon.aimPosition.z), Time.deltaTime * zSmooth);
 			
-			weaponRoot.localRotation =  Quaternion.Slerp (weaponRoot.localRotation, Quaternion.Euler(currentWeapon.aimAngle, 0, 0),  0.1f);
+			weaponRoot.localRotation =  Quaternion.Slerp (weaponRoot.localRotation, Quaternion.Euler(currentWeapon.aimAngleX, currentWeapon.aimAngleY, currentWeapon.aimAngleZ),  0.1f);
 
 			// Divide the rotate speed by 2
 			rotateCoef = 0.5f;
