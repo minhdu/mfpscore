@@ -18,6 +18,12 @@ public class FPSCamera : Singleton<FPSCamera> {
 	float maxYAngle = 60F;
 
 	Transform mTransform;
+	public Transform Transform {
+		get {
+			return mTransform;
+		}
+	}
+
 	PlayerController playerController;
 
 	public float zSmooth = 10;

@@ -27,6 +27,8 @@ public class PlayerController : Singleton<PlayerController> {
 	};
 
 
+
+	public Animation grenadeAnim;
 	public LayerMask collisionLayers = -1;
 	public GameObject sparkle;
 	public List<Weapon> weapons = new List<Weapon>();
@@ -163,7 +165,7 @@ public class PlayerController : Singleton<PlayerController> {
 					if(enemy != null) {
 						bulletHit.collider.gameObject.GetComponent<HitEnemy>().Hurt(currentWeapon.baseDamage);
 						HitMark.Instance.Hit ();
-						//Instantiate  (BloodZombie, hit.point, Quaternion.identity); 
+						Instantiate  (currentWeapon.bloodPrefab, bulletHit.point, Quaternion.identity); 
 					}
 					// Hit environment
 					else {
@@ -316,6 +318,16 @@ public class PlayerController : Singleton<PlayerController> {
 		return 0;
 	}
 
+	IEnumerator ThrowGrenade () {
+		isChanging = true;
+		yield return new WaitForSeconds (PlayAnimation (WeaponAnimation.HIDE));
+		grenadeAnim.Play ();
+		GrenadeHandler.Instance.Throw ();
+		yield return new WaitForSeconds (2.5f);
+		yield return new WaitForSeconds (PlayAnimation (WeaponAnimation.SHOW));
+		isChanging = false;
+	}
+
 #endregion
 
 #region Input
@@ -359,9 +371,8 @@ public class PlayerController : Singleton<PlayerController> {
 		}
 	}
 
-	public Animation grenade;
 	public void DoThrowGrenade () {
-		grenade.Play ();
+		StartCoroutine (ThrowGrenade ());
 	}
 
 #endregion
