@@ -163,7 +163,7 @@ public class FPSCamera : Singleton<FPSCamera> {
 //			}
 		}else if (PlayerController.Instance.IsAiming && !PlayerController.Instance.IsReloading && PlayerController.Instance.CurrentWeapon.isFirearms){
 			if(playerCamera.fieldOfView > 20){
-				playerCamera.fieldOfView = Mathf.Lerp(playerCamera.fieldOfView, 20, 0.1f);
+				playerCamera.fieldOfView = Mathf.Lerp(playerCamera.fieldOfView, playerController.CurrentWeapon.zoomAmout, 0.1f);
 			}
 
 			weaponRoot.localPosition = Vector3.Lerp(weaponRoot.localPosition, new Vector3(currentWeapon.aimPosition.x,

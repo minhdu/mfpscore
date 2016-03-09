@@ -12,7 +12,9 @@ public class PlayerController : Singleton<PlayerController> {
 		SHOW,
 		ZOOM_IN,
 		ZOOM_OUT,
-		MELEE
+		MELEE,
+		RELOAD_START,
+		RELOAD_STOP
 	}
 
 	string[] animationsName = new string[] {
@@ -23,7 +25,9 @@ public class PlayerController : Singleton<PlayerController> {
 		"Show",
 		"ZoomIn",
 		"ZoomOut",
-		"Melee"
+		"Melee",
+		"ReloadStart",
+		"ReloadStop"
 	};
 
 
@@ -61,8 +65,8 @@ public class PlayerController : Singleton<PlayerController> {
 
 	int currentWeaponIndex = 0;
 
-	Ray bulletRay;
-	RaycastHit bulletHit;
+	Ray[] bulletRay = new Ray[10];
+	RaycastHit[] bulletHit = new RaycastHit[10];
 	int muzzleRotate = 45;
 	Vector3 worldSpaceCenter = Vector3.zero;
 
@@ -101,25 +105,30 @@ public class PlayerController : Singleton<PlayerController> {
 		}
 	}
 
+	bool delayShoot = false;
+
 	bool isZoomingIn = false;
 	bool isZoomingOut = false;
 
 	void Start () {
 		worldSpaceCenter = new Vector3 (ScreenHelper.HalfScreenSize.x, ScreenHelper.HalfScreenSize.y, 0);
 		currentWeapon = weapons [0];
+//		CameraShake.Instance.ShakeLoop (currentWeapon.swayAmount, 5);
 	}
 
 	void Update () {
 
 		// Shooting ray
-		float spreadRange = currentWeapon.spreadRange - currentWeapon.spreadRange * currentWeapon.gunAccurary;
-		float spreadRangeX = Random.Range (-spreadRange, spreadRange);
-		float spreadRangeY = Random.Range (-spreadRange, spreadRange);
-		bulletRay = FPSCamera.Instance.PlayerCamera.ScreenPointToRay(worldSpaceCenter+new Vector3(spreadRangeX, spreadRangeY, 0));
-		Physics.Raycast(bulletRay, out bulletHit, currentWeapon.shootRange, collisionLayers.value);
-
-		if (isShooting) {
-			Shoot ();
+		for (int i = 0; i < currentWeapon.bulletBallNum; i++) {
+			float spreadRange = currentWeapon.spreadRange - currentWeapon.spreadRange * currentWeapon.gunAccurary;
+			float spreadRangeX = Random.Range (-spreadRange, spreadRange);
+			float spreadRangeY = Random.Range (-spreadRange, spreadRange);
+			bulletRay[i] = FPSCamera.Instance.PlayerCamera.ScreenPointToRay (worldSpaceCenter + new Vector3 (spreadRangeX, spreadRangeY, 0));
+			Physics.Raycast (bulletRay[i], out bulletHit[i], currentWeapon.shootRange, collisionLayers.value);
+		}
+			
+		if (isShooting && !delayShoot) {
+			StartCoroutine(Shoot ());
 			CrossHair.Instance.Zoom ();
 		}
 
@@ -127,20 +136,24 @@ public class PlayerController : Singleton<PlayerController> {
 			DoReload ();
 		}
 
-		if (!isReloading && !isShooting && !isChanging && !isAiming && !isZoomingIn && !isZoomingOut) {
+		if (!isReloading && !isShooting && !isChanging && !isAiming && !isZoomingIn && !isZoomingOut && !delayShoot) {
 			PlayAnimation (WeaponAnimation.IDLE, WrapMode.Loop);
 		}
 	}
 
 #region Action Processor
 
-	void Shoot ()
+	IEnumerator Shoot ()
 	{
 		if (currentWeapon.isFirearms)
 		{
 			if (Time.time > currentWeapon.nextFireTime + currentWeapon.fireRate)
 			{
-				PlayAnimation (WeaponAnimation.SHOOT);
+				CameraShake.Instance.ShakeOnce (currentWeapon.shakeAmount, 0.25f);
+				if (currentWeapon.bulletBallNum > 1)
+					delayShoot = true;
+				AudioSource.PlayOneShot(CurrentWeapon.shootSound);
+				float shotTime = PlayAnimation (WeaponAnimation.SHOOT);
 
 				// Projectile
 //				Rigidbody clone = Instantiate(currentWeapon.projectilePrefab, Transform.position, Transform.rotation) as Rigidbody;
@@ -153,38 +166,46 @@ public class PlayerController : Singleton<PlayerController> {
 				FPSCamera.Instance.yPosition = currentWeapon.yPosition;
 				FPSCamera.Instance.zPosition = -0.1f;
 
-				// Sight for a collider
-				if (bulletHit.collider)
-				{
-					//if(hit.collider.tag != "Spwan")
-					//{
-					bulletHit.collider.SendMessage("Hit",currentWeapon.weaponPower,SendMessageOptions.DontRequireReceiver);
+				for (int i = 0; i < currentWeapon.bulletBallNum; i++) {
+					// Sight for a collider
+					if (bulletHit [i].collider) {
+						//if(hit.collider.tag != "Spwan")
+						//{
+						bulletHit [i].collider.SendMessage ("Hit", currentWeapon.weaponPower, SendMessageOptions.DontRequireReceiver);
 
-					HitEnemy enemy = bulletHit.collider.gameObject.GetComponent<HitEnemy> ();
-					// Hit enemy
-					if(enemy != null) {
-						bulletHit.collider.gameObject.GetComponent<HitEnemy>().Hurt(currentWeapon.baseDamage);
-						HitMark.Instance.Hit ();
-						Instantiate  (currentWeapon.bloodPrefab, bulletHit.point, Quaternion.identity); 
-					}
+						HitEnemy enemy = bulletHit [i].collider.gameObject.GetComponent<HitEnemy> ();
+						// Hit enemy
+						if (enemy != null) {
+							bulletHit [i].collider.gameObject.GetComponent<HitEnemy> ().Hurt (currentWeapon.baseDamage);
+							HitMark.Instance.Hit ();
+							Instantiate (currentWeapon.bloodPrefab, bulletHit [i].point, Quaternion.identity); 
+						}
 					// Hit environment
 					else {
-						// Sparkle
-						Instantiate  (sparkle, bulletHit.point, Quaternion.identity); 
+							// Sparkle
+							Instantiate (sparkle, bulletHit [i].point, Quaternion.identity); 
 
-						// Hole
-						Quaternion hitRotation = Quaternion.FromToRotation(Vector3.forward, bulletHit.normal);
-						Instantiate(currentWeapon.bulletHole, bulletHit.point+bulletHit.normal*0.1f, hitRotation);
-					}
-					//}
-				} 
+							// Hole
+							Quaternion hitRotation = Quaternion.FromToRotation (Vector3.forward, bulletHit [i].normal);
+							Instantiate (currentWeapon.bulletHole, bulletHit [i].point + bulletHit [i].normal * 0.1f, hitRotation);
+						}
+						//}
+					} 
+				}
+
+				if (currentWeapon.bulletBallNum > 1) {
+					yield return new WaitForSeconds (shotTime);
+					delayShoot = false;
+				}
+				
 				//UpdateGUI(GUIComponent.Bullet);
 				if(currentWeapon.muzzleFlash)
 					currentWeapon.muzzleFlash.enabled = true;
 //				if (currentWeapon.projectileRender)
 //					currentWeapon.projectileRender.enabled = true;
 //				
-				AudioSource.PlayOneShot(CurrentWeapon.shootSound);
+				if(currentWeapon.bulletBallNum == 1)
+					AudioSource.PlayOneShot(CurrentWeapon.shootSound);
 //				if(!AudioSource.isPlaying)
 //				{
 //					AudioSource.PlayOneShot(currentWeapon.shootSound);
@@ -218,6 +239,7 @@ public class PlayerController : Singleton<PlayerController> {
 		}
 
 		//UpdateLabel ();
+		yield break;
 	}
 
 	IEnumerator Reload()
@@ -226,32 +248,40 @@ public class PlayerController : Singleton<PlayerController> {
 		crossHair.gameObject.SetActive(false);
 		//inClin = 7.5f;
 		if (CurrentWeapon.remainBulletInClip < currentWeapon.bulletPerClip) {
-			currentWeapon.remainBullet += currentWeapon.remainBulletInClip;
-			currentWeapon.remainBulletInClip = 0;
-
-			if (currentWeapon.remainBullet > currentWeapon.bulletPerClip) {
+			if (currentWeapon.bulletBallNum == 1) {
+				currentWeapon.remainBullet += currentWeapon.remainBulletInClip;
+				currentWeapon.remainBulletInClip = 0;
+			} else {
+				yield return new WaitForSeconds(PlayAnimation(WeaponAnimation.RELOAD_START));
+			}
 
 				//audio.Stop();
 
-				PlayAnimation (WeaponAnimation.RELOAD);
-
+			int reloadTimes = 1;
+			if (currentWeapon.bulletBallNum > 1)
+				reloadTimes = currentWeapon.bulletPerClip - currentWeapon.remainBulletInClip;
+			for (int i = 0; i < reloadTimes; i++) {
 				AudioSource.PlayOneShot (CurrentWeapon.audioReload);
-
-				yield return new WaitForSeconds (PlayAnimation (WeaponAnimation.RELOAD));
+				yield return new WaitForSeconds (PlayAnimation (WeaponAnimation.RELOAD, WrapMode.Default, true));
 				//yield return new WaitForSeconds (currentWeapon.audioReload.length - currentWeapon.audioReload.length * (currentWeapon.reloadSpeed - 1));
 
-				currentWeapon.remainBulletInClip = currentWeapon.bulletPerClip;
-				currentWeapon.remainBullet -= CurrentWeapon.bulletPerClip;
+				if (currentWeapon.bulletBallNum == 1) {
+					currentWeapon.remainBulletInClip = currentWeapon.bulletPerClip;
+					currentWeapon.remainBullet -= CurrentWeapon.bulletPerClip;
+					currentWeapon.currentAmmoClip = (float)currentWeapon.remainBullet / (float)currentWeapon.bulletPerClip;
+				} else {
+					currentWeapon.remainBulletInClip += 1;
+					currentWeapon.remainBullet -= 1;
+					currentWeapon.currentAmmoClip = (float)currentWeapon.remainBullet / (float)currentWeapon.bulletPerClip;
+				}
+
 			}
-			else 
-			{
-					//yield return new WaitForSeconds (2);
-					currentWeapon.remainBulletInClip = currentWeapon.remainBullet;
-					currentWeapon.remainBullet = 0;
+//			UpdateGUI(GUIComponent.Clip);
+
+			if (currentWeapon.bulletBallNum > 1) {
+				yield return new WaitForSeconds (PlayAnimation (WeaponAnimation.RELOAD_STOP));
 			}
 
-			currentWeapon.currentAmmoClip = (float)currentWeapon.remainBullet/(float)currentWeapon.bulletPerClip;
-//			UpdateGUI(GUIComponent.Clip);
 		}
 		isReloading = false;
 
@@ -289,29 +319,43 @@ public class PlayerController : Singleton<PlayerController> {
 		//inClin = 0;
 
 		crossHair.gameObject.SetActive(true);
+
+//		CameraShake.Instance.ShakeLoop (currentWeapon.swayAmount, 5);
 	}
 
 	IEnumerator Aim () {
 		if (isAiming) {
 			isZoomingIn = true;
 			yield return new WaitForSeconds(PlayAnimation(WeaponAnimation.ZOOM_IN));
+			if (currentWeapon.sniperScope != null) {
+				currentWeapon.sniperScope.SetActive (true);
+				currentWeapon.weaponPrefab.SetActive (false);
+			}
 			isZoomingIn = false;
 		} else {
 			isZoomingOut = true;
+			if (currentWeapon.sniperScope != null) {
+				currentWeapon.sniperScope.SetActive (false);
+				currentWeapon.weaponPrefab.SetActive (true);
+			}
 			yield return new WaitForSeconds (PlayAnimation (WeaponAnimation.ZOOM_OUT));
 			isZoomingOut = false;
 		}
 	}
 
-	public float PlayAnimation (WeaponAnimation anim, WrapMode wrapMode = WrapMode.Default) {
+	public float PlayAnimation (WeaponAnimation anim, WrapMode wrapMode = WrapMode.Default, bool crossFade=false, float fadeLenght=0.5f) {
 		string clipName = animationsName [(int)anim];
 		if (wrapMode == WrapMode.Loop && currentWeapon.Anim.IsPlaying (clipName))
 			return 0;
 		AnimationClip clip = currentWeapon.Anim.GetClip (clipName);
 		if (clip != null) {
-			currentWeapon.Anim.clip = clip;
-			currentWeapon.Anim.wrapMode = wrapMode;
-			currentWeapon.Anim.Play();
+			if (crossFade) {
+				currentWeapon.Anim.CrossFade (clipName, fadeLenght);
+			} else {
+				currentWeapon.Anim.clip = clip;
+				currentWeapon.Anim.wrapMode = wrapMode;
+				currentWeapon.Anim.Play ();
+			}
 			return clip.length;
 		}
 

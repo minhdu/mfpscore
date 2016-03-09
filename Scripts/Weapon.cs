@@ -17,10 +17,16 @@ public class Weapon : IGameModel
 	public float fireRate;
 	public float shootRange;
 	public float spreadRange;
+	public int bulletBallNum = 1;
 	public float gunAccurary;
 	public int bulletPerClip; 
 	public float reloadSpeed;
+	public float swayAmount;
+	public float shakeAmount;
+	public float zoomAmout = 20;
 
+
+	public GameObject sniperScope;
 	public Renderer muzzleFlash;
 	public AudioClip shootSound;
 	public AudioClip audioReload;

@@ -28,7 +28,6 @@ public class CrossHair : Singleton<CrossHair> {
 	}
 
 	public void Reverts () {
-		Debug.Log (zoomFactor);
 		for (int i = 0; i < lines.Length; i++) {
 			LeanTween.moveLocal(lines[i].gameObject, originalPosition[i], 0.25f-zoomFactor/40f).setOnComplete(ResetFactor);
 		}

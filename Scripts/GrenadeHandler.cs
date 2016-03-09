@@ -42,7 +42,7 @@ public class GrenadeHandler : Singleton<GrenadeHandler> {
 		yield return new WaitForSeconds (cookTime);
 		Instantiate(explosionPrefab, grenadeTransform.position, Quaternion.identity);
 		Destroy (currentGrenade);
-		CameraShake.Instance.Shake ();
+//		CameraShake.Instance.Shake ();
 		Revert ();
 		InitNewGrenade ();
 	}
