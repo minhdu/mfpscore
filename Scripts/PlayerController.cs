@@ -190,7 +190,7 @@ public class PlayerController : Singleton<PlayerController> {
 							Instantiate (currentWeapon.bulletHole, bulletHit [i].point + bulletHit [i].normal * 0.1f, hitRotation);
 						}
 						//}
-					} 
+					}
 				}
 
 				if (currentWeapon.bulletBallNum > 1) {
