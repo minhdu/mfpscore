@@ -113,7 +113,7 @@ public class PlayerController : Singleton<PlayerController> {
 	void Start () {
 		worldSpaceCenter = new Vector3 (ScreenHelper.HalfScreenSize.x, ScreenHelper.HalfScreenSize.y, 0);
 		currentWeapon = weapons [0];
-//		CameraShake.Instance.ShakeLoop (currentWeapon.swayAmount, 5);
+		CameraShake.Instance.ShakeLoop (currentWeapon.swayAmount, 5);
 	}
 
 	void Update () {
@@ -173,10 +173,10 @@ public class PlayerController : Singleton<PlayerController> {
 						//{
 						bulletHit [i].collider.SendMessage ("Hit", currentWeapon.weaponPower, SendMessageOptions.DontRequireReceiver);
 
-						HitEnemy enemy = bulletHit [i].collider.gameObject.GetComponent<HitEnemy> ();
+						FakeEnemy enemy = bulletHit [i].collider.gameObject.GetComponent<FakeEnemy> ();
 						// Hit enemy
 						if (enemy != null) {
-							bulletHit [i].collider.gameObject.GetComponent<HitEnemy> ().Hurt (currentWeapon.baseDamage);
+							bulletHit [i].collider.gameObject.GetComponent<FakeEnemy> ().Hurt (currentWeapon.baseDamage);
 							HitMark.Instance.Hit ();
 							Instantiate (currentWeapon.bloodPrefab, bulletHit [i].point, Quaternion.identity); 
 						}

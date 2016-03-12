@@ -2,8 +2,7 @@
 using System;
 
 [Serializable]
-public class Weapon : IGameModel
-{
+public class Weapon {
 	#region General
 	public string weaponName;
 	public bool isFirearms;
