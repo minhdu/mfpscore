@@ -294,8 +294,8 @@ public class PlayerController : Singleton<PlayerController> {
 	IEnumerator ChangeWeapon()
 	{
 		CrossHair.Instance.Show (false);
-		if(currentWeapon.sniperScope != null)
-			currentWeapon.sniperScope.SetActive(false)
+		if (currentWeapon.sniperScope != null)
+			currentWeapon.sniperScope.SetActive (false);
 
 		isChanging = true;
 

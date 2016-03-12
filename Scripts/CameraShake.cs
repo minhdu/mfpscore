@@ -23,7 +23,7 @@ public class CameraShake : Singleton<CameraShake> {
 			return;
 		}
 		isIdle = true;
-		idleTween = LeanTween.moveLocal(gameObject, idleVector, 1.5f).setEase(LeanTweenType.easeOutQuad).setLoopPingPong(-1);
+		idleTween = LeanTween.moveLocal(gameObject, idleVector, 1.5f).setEase(LeanTweenType.easeInSine).setLoopPingPong(-1);
 	}
 
 	public void StopIdle () {
