@@ -37,4 +37,10 @@ public class CrossHair : Singleton<CrossHair> {
 		zoomFactor = 0;
 		increaseFactor = 0.02f;
 	}
+
+	public void Show (bool hide) {
+		for (int i = 0; i < lines.Length; i++) {
+			lines [i].gameObject.SetActive (hide);
+		}
+	}
 }

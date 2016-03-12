@@ -36,7 +36,6 @@ public class PlayerController : Singleton<PlayerController> {
 	public LayerMask collisionLayers = -1;
 	public GameObject sparkle;
 	public List<Weapon> weapons = new List<Weapon>();
-	public GameObject crossHair;
 
 	Transform _transform;
 	public Transform Transform {
@@ -113,7 +112,7 @@ public class PlayerController : Singleton<PlayerController> {
 	void Start () {
 		worldSpaceCenter = new Vector3 (ScreenHelper.HalfScreenSize.x, ScreenHelper.HalfScreenSize.y, 0);
 		currentWeapon = weapons [0];
-		CameraShake.Instance.ShakeLoop (currentWeapon.swayAmount, 5);
+		CameraShake.Instance.Idle ();
 	}
 
 	void Update () {
@@ -149,7 +148,6 @@ public class PlayerController : Singleton<PlayerController> {
 		{
 			if (Time.time > currentWeapon.nextFireTime + currentWeapon.fireRate)
 			{
-				CameraShake.Instance.ShakeOnce (currentWeapon.shakeAmount, 0.25f);
 				if (currentWeapon.bulletBallNum > 1)
 					delayShoot = true;
 				AudioSource.PlayOneShot(CurrentWeapon.shootSound);
@@ -245,7 +243,7 @@ public class PlayerController : Singleton<PlayerController> {
 	IEnumerator Reload()
 	{
 		isReloading = true;
-		crossHair.gameObject.SetActive(false);
+		CrossHair.Instance.Show (false);
 		//inClin = 7.5f;
 		if (CurrentWeapon.remainBulletInClip < currentWeapon.bulletPerClip) {
 			if (currentWeapon.bulletBallNum == 1) {
@@ -289,12 +287,15 @@ public class PlayerController : Singleton<PlayerController> {
 
 //		UpdateGUI(GUIComponent.Bullet);
 //		inClin = 0;
-      crossHair.gameObject.SetActive(true);
+		CrossHair.Instance.Show (true);
+		CameraShake.Instance.Idle ();
 	}
 
 	IEnumerator ChangeWeapon()
 	{
-		crossHair.gameObject.SetActive(false);
+		CrossHair.Instance.Show (false);
+		if(currentWeapon.sniperScope != null)
+			currentWeapon.sniperScope.SetActive(false)
 
 		isChanging = true;
 
@@ -318,9 +319,8 @@ public class PlayerController : Singleton<PlayerController> {
 
 		//inClin = 0;
 
-		crossHair.gameObject.SetActive(true);
-
-//		CameraShake.Instance.ShakeLoop (currentWeapon.swayAmount, 5);
+		CrossHair.Instance.Show (true);
+		CameraShake.Instance.Idle ();
 	}
 
 	IEnumerator Aim () {
@@ -341,6 +341,7 @@ public class PlayerController : Singleton<PlayerController> {
 			yield return new WaitForSeconds (PlayAnimation (WeaponAnimation.ZOOM_OUT));
 			isZoomingOut = false;
 		}
+		CameraShake.Instance.Idle ();
 	}
 
 	public float PlayAnimation (WeaponAnimation anim, WrapMode wrapMode = WrapMode.Default, bool crossFade=false, float fadeLenght=0.5f) {
@@ -378,7 +379,7 @@ public class PlayerController : Singleton<PlayerController> {
 
 	public void DoSight()
 	{
-		crossHair.gameObject.SetActive(!crossHair.gameObject.activeSelf);
+		CrossHair.Instance.Show (isAiming);
 		isAiming = !isAiming;
 		StartCoroutine (Aim ());
 	}
@@ -399,7 +400,13 @@ public class PlayerController : Singleton<PlayerController> {
 		//if(!isReloading && CurrentWeapon.bulletinMagasine < CurrentWeapon.bulletperClip)
 		if(!isReloading && !isZoomingIn && !isZoomingOut)
 		{
+			isShooting = false;
 			isAiming = false;
+			CameraShake.Instance.StopShootingShake ();
+			if (currentWeapon.sniperScope != null) {
+				currentWeapon.sniperScope.SetActive (false);
+				currentWeapon.weaponPrefab.SetActive (true);
+			}
 			StartCoroutine (Reload ());
 		}
 	}
@@ -407,8 +414,13 @@ public class PlayerController : Singleton<PlayerController> {
 	public void DoShoot (bool shoot) {
 		if (!isReloading && currentWeapon.remainBulletInClip > 0 && !isZoomingIn && !isZoomingOut) {
 			isShooting = shoot;
-			if (!isShooting) {
+			if (shoot) {
+				CameraShake.Instance.ShootingShake (currentWeapon.shakeAmount, currentWeapon.fireRate);
+				CameraShake.Instance.StopIdle ();
+			} else {
 				CrossHair.Instance.Reverts();
+				CameraShake.Instance.Idle ();
+				CameraShake.Instance.StopShootingShake ();
 				if(currentWeapon.muzzleFlash.enabled)
 					currentWeapon.muzzleFlash.enabled = false;
 			}

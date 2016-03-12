@@ -17,10 +17,9 @@ public class FPSCamera : Singleton<FPSCamera> {
 	float minYAngle = -60F;
 	float maxYAngle = 60F;
 
-	Transform mTransform;
 	public Transform Transform {
 		get {
-			return mTransform;
+			return cameraTrans;
 		}
 	}
 
@@ -59,10 +58,9 @@ public class FPSCamera : Singleton<FPSCamera> {
 
 	void InitCamera () {
 		cameraHandleArea.FingerBound = new Rect(0,0, ScreenHelper.ScreenSize.x*3, ScreenHelper.ScreenSize.y);
-		mTransform = GetComponent<Transform> ();
 		playerController = GetComponentInParent<PlayerController> ();
 		cameraTrans = PlayerCamera.GetComponent<Transform> ();
-		originalRotation = mTransform.rotation.eulerAngles.y;
+		originalRotation = cameraTrans.rotation.eulerAngles.y;
 		originalPosition = cameraTrans.localPosition;
 		isInited = true;
 	}
@@ -76,6 +74,8 @@ public class FPSCamera : Singleton<FPSCamera> {
 	}
 
 	void HandleTouch () {
+		if (Input.touchCount > 0)
+			CameraShake.Instance.StopIdle ();
 		foreach  (Touch touch in Input.touches)
 		{
 			// Began Touch Phase
