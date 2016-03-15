@@ -344,7 +344,7 @@ public class PlayerController : Singleton<PlayerController> {
 		CameraShake.Instance.Idle ();
 	}
 
-	public float PlayAnimation (WeaponAnimation anim, WrapMode wrapMode = WrapMode.Default, bool crossFade=false, float fadeLenght=0.5f) {
+	public float PlayAnimation (WeaponAnimation anim, WrapMode wrapMode = WrapMode.Default, bool crossFade=false, float fadeLenght=0.25f) {
 		string clipName = animationsName [(int)anim];
 		if (wrapMode == WrapMode.Loop && currentWeapon.Anim.IsPlaying (clipName))
 			return 0;
@@ -431,5 +431,8 @@ public class PlayerController : Singleton<PlayerController> {
 		StartCoroutine (ThrowGrenade ());
 	}
 
+	public void Hurt (float damage) {
+		
+	}
 #endregion
 }

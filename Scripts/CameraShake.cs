@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System;
 
 public class CameraShake : Singleton<CameraShake> {
 	
@@ -33,7 +34,7 @@ public class CameraShake : Singleton<CameraShake> {
 		}
 	}
 
-	public void GrenadeShake () {
+	public void GrenadeShake (Action onShakeComplete=null) {
 		LTDescr shakeTween = LeanTween.rotateAround(gameObject, Vector3.right, shakeAmt, shakePeriodTime)
 			.setEase(LeanTweenType.easeShake) // this is a special ease that is good for shaking
 			.setLoopClamp()
@@ -44,8 +45,11 @@ public class CameraShake : Singleton<CameraShake> {
 			(float val)=>{
 				if(val > 0)
 					shakeTween.setTo(Vector3.right*val);
-				else
+				else {
 					LeanTween.cancel(shakeTween.uniqueId);
+					if(onShakeComplete != null)
+						onShakeComplete();
+				}
 			}
 		).setEase(LeanTweenType.easeOutQuad);
 	}
