@@ -111,33 +111,33 @@ public class PlayerController : Singleton<PlayerController> {
 
 	void Start () {
 		worldSpaceCenter = new Vector3 (ScreenHelper.HalfScreenSize.x, ScreenHelper.HalfScreenSize.y, 0);
-		currentWeapon = weapons [0];
+		//currentWeapon = weapons [0];
 		CameraShake.Instance.Idle ();
 	}
 
 	void Update () {
 
 		// Shooting ray
-		for (int i = 0; i < currentWeapon.bulletBallNum; i++) {
-			float spreadRange = currentWeapon.spreadRange - currentWeapon.spreadRange * currentWeapon.gunAccurary;
-			float spreadRangeX = Random.Range (-spreadRange, spreadRange);
-			float spreadRangeY = Random.Range (-spreadRange, spreadRange);
-			bulletRay[i] = FPSCamera.Instance.PlayerCamera.ScreenPointToRay (worldSpaceCenter + new Vector3 (spreadRangeX, spreadRangeY, 0));
-			Physics.Raycast (bulletRay[i], out bulletHit[i], currentWeapon.shootRange, collisionLayers.value);
-		}
-			
-		if (isShooting && !delayShoot) {
-			StartCoroutine(Shoot ());
-			CrossHair.Instance.Zoom ();
-		}
-
-		if(currentWeapon.isFirearms && currentWeapon.remainBullet > 0 && currentWeapon.remainBulletInClip <= 0) {
-			DoReload ();
-		}
-
-		if (!isReloading && !isShooting && !isChanging && !isAiming && !isZoomingIn && !isZoomingOut && !delayShoot) {
-			PlayAnimation (WeaponAnimation.IDLE, WrapMode.Loop);
-		}
+//		for (int i = 0; i < currentWeapon.bulletBallNum; i++) {
+//			float spreadRange = currentWeapon.spreadRange - currentWeapon.spreadRange * currentWeapon.gunAccurary;
+//			float spreadRangeX = Random.Range (-spreadRange, spreadRange);
+//			float spreadRangeY = Random.Range (-spreadRange, spreadRange);
+//			bulletRay[i] = FPSCamera.Instance.PlayerCamera.ScreenPointToRay (worldSpaceCenter + new Vector3 (spreadRangeX, spreadRangeY, 0));
+//			Physics.Raycast (bulletRay[i], out bulletHit[i], currentWeapon.shootRange, collisionLayers.value);
+//		}
+//			
+//		if (isShooting && !delayShoot) {
+//			StartCoroutine(Shoot ());
+//			CrossHair.Instance.Zoom ();
+//		}
+//
+//		if(currentWeapon.isFirearms && currentWeapon.remainBullet > 0 && currentWeapon.remainBulletInClip <= 0) {
+//			DoReload ();
+//		}
+//
+//		if (!isReloading && !isShooting && !isChanging && !isAiming && !isZoomingIn && !isZoomingOut && !delayShoot) {
+//			PlayAnimation (WeaponAnimation.IDLE, WrapMode.Loop);
+//		}
 	}
 
 #region Action Processor
