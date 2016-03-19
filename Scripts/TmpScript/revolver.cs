@@ -2,7 +2,7 @@
 using System.Collections;
 
 
-public class revolver : MonoBehaviour {
+public class revolver : MonoBehaviour, IGun {
 
 	public Vector3 normalposition;
 	public Vector3 aimposition;	
@@ -89,6 +89,7 @@ public class revolver : MonoBehaviour {
 	public Transform grenadethrower;
 	public Transform rayfirer;
 	public Transform player;
+
 	void Start()
 	{
 		
@@ -250,7 +251,7 @@ public class revolver : MonoBehaviour {
 			}
 			else 
 			{
-				reload();
+				Reload();
 			}
 			
 			
@@ -288,7 +289,7 @@ public class revolver : MonoBehaviour {
 		
 		GetComponent<Animation>().Stop();
 		if (isreloading) {
-			reload ();
+			Reload ();
 		} 
 		else 
 		{
@@ -319,7 +320,8 @@ public class revolver : MonoBehaviour {
 			transform.localPosition = new Vector3(transform.localPosition.x, transform.localPosition.y ,transform.localPosition.z + randomZ);
 			camerarotate cameracontroller = recoilCamera.GetComponent<camerarotate>();
 
-			cameracontroller.SendMessage("dorecoil", recoil,SendMessageOptions.DontRequireReceiver);
+			//cameracontroller.SendMessage("dorecoil", recoil,SendMessageOptions.DontRequireReceiver);
+			FPSCamera.Instance.DoRecoil(recoil);
 
 			StartCoroutine(flashthemuzzle());
 
@@ -339,7 +341,7 @@ public class revolver : MonoBehaviour {
 			
 			if (currentammo <= 0)
 			{
-				reload();
+				Reload();
 			}
 			
 		}
@@ -347,7 +349,7 @@ public class revolver : MonoBehaviour {
 		
 	}
 	
-	void reload()
+	void Reload()
 	{
 
 
@@ -459,7 +461,27 @@ public class revolver : MonoBehaviour {
 		grenadethrower.gameObject.SetActive(false);
 	}
 
+	bool isAiming = false;
+	public bool IsAiming () {
+		return isAiming;
+	}
 
+	bool isShooting = false;
+	public void DoShoot () {
+		isShooting = true;
+	}
 
+	public void StopShoot () {
+		isShooting = false;
+		CrossHair.Instance.Reverts();
+	}
+
+	public void DoReload () {
+		Reload ();
+	}
+
+	public void DoAim () {
+		isAiming = !isAiming;
+	}
 }
 

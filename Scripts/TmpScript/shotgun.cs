@@ -2,7 +2,7 @@
 using System.Collections;
 
 
-public class shotgun : MonoBehaviour {
+public class shotgun : MonoBehaviour, IGun {
 
 	public Vector3 normalposition;
 	public Vector3 aimposition;	
@@ -82,6 +82,14 @@ public class shotgun : MonoBehaviour {
 	public Transform grenadethrower;
 	public Transform rayfirer;
 	public Transform player;
+
+	bool isAiming = false;
+	public bool IsAiming () {
+		return isAiming;
+	}
+
+	bool isShooting = false;
+
 	void Start()
 	{
 		
@@ -180,7 +188,7 @@ public class shotgun : MonoBehaviour {
 			}
 			else 
 			{
-				reload();
+				Reload();
 			}
 			
 			
@@ -218,7 +226,7 @@ public class shotgun : MonoBehaviour {
 		
 		GetComponent<Animation>().Stop();
 		if (isreloading) {
-			reload ();
+			Reload ();
 		} 
 		else 
 		{
@@ -259,7 +267,7 @@ public class shotgun : MonoBehaviour {
 			
 			if (currentammo <= 0)
 			{
-				reload();
+				Reload();
 			}
 			
 		}
@@ -267,7 +275,7 @@ public class shotgun : MonoBehaviour {
 		
 	}
 	
-	void reload()
+	void Reload()
 	{
 
 
@@ -390,7 +398,7 @@ public class shotgun : MonoBehaviour {
 		else if (currentammo <= 1) 
 		{
 			if (currentammo <= 0) {
-				reload ();
+				Reload ();
 			}
 			StartCoroutine(flashthemuzzle());
 			raycastfire weaponfirer = rayfirer.GetComponent<raycastfire> ();
@@ -426,7 +434,21 @@ public class shotgun : MonoBehaviour {
 		grenadethrower.gameObject.SetActive(false);
 	}
 
+	public void DoShoot () {
+		isShooting = true;
+	}
 
+	public void StopShoot () {
+		isShooting = false;
+		CrossHair.Instance.Reverts();
+	}
 
+	public void DoReload () {
+		Reload ();
+	}
+
+	public void DoAim () {
+		isAiming = !isAiming;
+	}
 }
 

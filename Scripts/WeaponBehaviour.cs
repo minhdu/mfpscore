@@ -1,13 +1,12 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-
-public class genericShooter : MonoBehaviour, IGun {
+public abstract class WeaponBehaviour : MonoBehaviour {
 
 	public Vector3 normalposition;
 	public Vector3 aimposition;	
 	public Vector3 retractPos;
-	
+
 	public float aimFOV = 45f;
 	public float normalFOV  = 65f;
 	public float weaponnormalFOV = 32f;
@@ -17,15 +16,15 @@ public class genericShooter : MonoBehaviour, IGun {
 
 	public AudioSource myAudioSource;
 
-	
+
 	public AudioSource fireAudioSource;
 	public AudioClip emptySound;
 	public AudioClip fireSound;
-	
+
 	public AudioClip readySound;
 	public AudioClip reloadSound;
-	
-	
+
+
 	public int ammoToReload = 20;
 
 	public int projectilecount = 1;
@@ -53,7 +52,7 @@ public class genericShooter : MonoBehaviour, IGun {
 	public float shellejectdelay = 0;
 	public int ammo = 200;
 	public int currentammo= 20;
-	
+
 	public Transform muzzle;
 	public Transform clipShell;
 
@@ -106,12 +105,13 @@ public class genericShooter : MonoBehaviour, IGun {
 		onstart();
 
 	}
+
 	void Update () 
 	{
-		
+
 
 		float step = speed * Time.deltaTime;
-		
+
 		float newField = Mathf.Lerp(Camera.main.fieldOfView, nextField, Time.deltaTime * 2);
 		float newfieldweapon = Mathf.Lerp(weaponcamera.fieldOfView, weaponnextfield, Time.deltaTime * 2);
 		Camera.main.fieldOfView = newField;
@@ -135,20 +135,20 @@ public class genericShooter : MonoBehaviour, IGun {
 		WeaponHandler inventory = player.GetComponent<WeaponHandler>();
 		inventory.currentammo = currentammo;
 		inventory.totalammo = ammo;
-//		if (playercontrol.running)
-//		{
-//			canfire = false;
-//
-//			wantedrotation = new Vector3(Xtilt + runXrotation,Ytilt,0f);
-//
-//		}
-//		else
-//		{
-//			canfire = true;
-//
-//			wantedrotation = new Vector3(Xtilt,Ytilt,0f);
-//
-//		}
+		//		if (playercontrol.running)
+		//		{
+		//			canfire = false;
+		//
+		//			wantedrotation = new Vector3(Xtilt + runXrotation,Ytilt,0f);
+		//
+		//		}
+		//		else
+		//		{
+		//			canfire = true;
+		//
+		//			wantedrotation = new Vector3(Xtilt,Ytilt,0f);
+		//
+		//		}
 
 		trans.localRotation = Quaternion.Lerp(trans.localRotation,Quaternion.Euler(wantedrotation),5f * Time.deltaTime);
 
@@ -163,23 +163,23 @@ public class genericShooter : MonoBehaviour, IGun {
 		}
 		else
 		{
-			
+
 			inaccuracy = spreadNormal;
-			
+
 			trans.localPosition = Vector3.MoveTowards(trans.localPosition, normalposition, step);
 			weaponnextfield = weaponnormalFOV;
 			nextField = normalFOV;
 
 		}
-		
-		
-		
-		
 
-		
+
+
+
+
+
 		if (currentammo == 0 || currentammo  <= 0 )
 		{	
-			
+
 			if (ammo <= 0)
 			{
 				canfire = false;
@@ -197,11 +197,11 @@ public class genericShooter : MonoBehaviour, IGun {
 			{
 				Reload();
 			}
-			
-			
+
+
 		}
 
-		
+
 		if (isShooting  && !isreloading && canfire)
 
 		{
@@ -209,13 +209,13 @@ public class genericShooter : MonoBehaviour, IGun {
 			Shoot();
 		}
 	}
-	
-	void doRetract()
+
+	public virtual void doRetract()
 	{
 		anim.Play(hideAnim.name);
 	}
-	
-	void onstart()
+
+	public virtual void onstart()
 	{
 		myAudioSource.Stop();
 		fireAudioSource.Stop();
@@ -227,7 +227,7 @@ public class genericShooter : MonoBehaviour, IGun {
 		raycastfire.Instance.range = range;
 		raycastfire.Instance.force = force;
 		raycastfire.Instance.projectilecount = projectilecount;
-		
+
 		anim.Stop();
 		if (isreloading) {
 			Reload ();
@@ -246,10 +246,10 @@ public class genericShooter : MonoBehaviour, IGun {
 			canaim = true;
 			canfire = true;
 		}
-		
+
 	}
 
-	void Shoot () {
+	public virtual void Shoot () {
 		if (!anim.isPlaying)
 		{
 
@@ -277,11 +277,11 @@ public class genericShooter : MonoBehaviour, IGun {
 			if (currentammo <= 0) {
 				Reload();
 			}
-			
+
 		}
 	}
-	
-	void Reload() {
+
+	public virtual void Reload() {
 
 		if (!anim.isPlaying && canreload && !isreloading) {
 
@@ -294,11 +294,11 @@ public class genericShooter : MonoBehaviour, IGun {
 			myAudioSource.Play();		
 
 			anim.Play(reloadAnim.name);
-			
+
 
 
 			ammoToReload = Mathf.Clamp (ammoToReload, ammoToReload, ammo);
-			
+
 			ammo -= ammoToReload;
 			currentammo += ammoToReload;
 
@@ -310,17 +310,17 @@ public class genericShooter : MonoBehaviour, IGun {
 
 
 	}
-	
-	
 
-	void doNormal()
+
+
+	public virtual void doNormal()
 	{
 
 
 		onstart();
 	}
 
-	IEnumerator ejectshell(float waitTime)
+	public virtual IEnumerator ejectshell(float waitTime)
 	{
 		yield return new WaitForSeconds(waitTime);
 		GameObject shellInstance;
@@ -328,15 +328,15 @@ public class genericShooter : MonoBehaviour, IGun {
 
 		shellInstance.GetComponent<Rigidbody>().AddRelativeForce(30,80,0);
 		shellInstance.GetComponent<Rigidbody>().AddRelativeTorque(500,20,800);
-		
+
 	}
-	IEnumerator deactivateShell(float waitTime)
+	public virtual IEnumerator deactivateShell(float waitTime)
 	{
 		clipShell.gameObject.SetActive (false);
 		yield return new WaitForSeconds(waitTime);
 		clipShell.gameObject.SetActive (true);
 	}
-	IEnumerator setreload(float waitTime)
+	public virtual IEnumerator setreload(float waitTime)
 	{
 		//PlayerControllerPC playercontrol = PlayerControllerPC.Instance;
 		//playercontrol.canclimb = false;
@@ -351,16 +351,16 @@ public class genericShooter : MonoBehaviour, IGun {
 		canaim = true;
 		selector.canswitch = true;
 		//playercontrol.canclimb = true;
-		
+
 	}
-	IEnumerator flashthemuzzle()
+	public virtual IEnumerator flashthemuzzle()
 	{
 		muzzle.transform.localEulerAngles = new Vector3(0f,0f,Random.Range(0f,360f));
 		muzzle.gameObject.SetActive(true);
 		yield return new WaitForSeconds(0.05f);
 		muzzle.gameObject.SetActive(false);
 	}
-	IEnumerator setThrowGrenade()
+	public virtual IEnumerator setThrowGrenade()
 	{
 		retract = true;
 		grenadethrower.gameObject.SetActive(true);
@@ -388,5 +388,5 @@ public class genericShooter : MonoBehaviour, IGun {
 	public void DoAim () {
 		isAiming = !isAiming;
 	}
-}
 
+}

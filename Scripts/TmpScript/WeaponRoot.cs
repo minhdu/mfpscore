@@ -46,7 +46,7 @@ public class WeaponRoot : MonoBehaviour {
 		prevPosition = player.transform.position;
 		prevVelocity = velocity;
 		springVelocity -= velocityChange.y;		
-		if (WeaponHandler.Instance.CurrentWeapon.IsAiming)
+		if (WeaponHandler.Instance.CurrentWeapon.IsAiming())
 		{
 			currentsway = maxSway/2.5f;
 			currentbob = aimbob;

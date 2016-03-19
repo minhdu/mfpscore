@@ -21,10 +21,10 @@ public class CameraRotate : MonoBehaviour {
 	void Update () {
 
 #if UNITY_EDITOR
-		Cursor.lockState = CursorLockMode.Locked;
+		//Cursor.lockState = CursorLockMode.Locked;
 #endif
 
-		if (WeaponHandler.Instance.CurrentWeapon.IsAiming) {
+		if (WeaponHandler.Instance.CurrentWeapon.IsAiming()) {
 			sensitivityX = aimSens;
 		}
 		else {

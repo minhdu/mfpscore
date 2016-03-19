@@ -23,16 +23,16 @@ public class WeaponHandler : Singleton<WeaponHandler> {
 	public int currentammo = 10;
 	public int totalammo = 100;
 
-	genericShooter currentWeapon;
-	public genericShooter CurrentWeapon {
+	IGun currentWeapon;
+	public IGun CurrentWeapon {
 		get {
 			return currentWeapon;
 		}
 	}
 
 	void Start () {
-		currentWeapon = Weapons [currentWeaponIndex].GetComponent<genericShooter> ();
-		numWeapons = Weapons.Length - 2;
+		currentWeapon = Weapons [currentWeaponIndex].GetComponent<IGun> ();
+		numWeapons = Weapons.Length - 1;
 	}
 
 	public void NextWeapon () {
@@ -53,7 +53,7 @@ public class WeaponHandler : Singleton<WeaponHandler> {
 			Debug.Log("Subtracted");
 			myaudioSource.PlayOneShot(switchsound, 1);
 			StartCoroutine(SelectWeapon(currentWeaponIndex));
-			currentWeapon = Weapons [currentWeaponIndex].GetComponent<genericShooter> ();
+			currentWeapon = Weapons [currentWeaponIndex].GetComponent<IGun> ();
 		}
 
 		if (hideweapons != oldhideweapons) {
