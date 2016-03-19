@@ -5,10 +5,24 @@ public class FPSCamera : Singleton<FPSCamera> {
 
 	TouchAreaData cameraHandleArea = new TouchAreaData();
 
+	float xInput;
+	public float XInput {
+		get {
+			return xInput;
+		}
+	}
+
+	float yInput;
+	public float YInput {
+		get {
+			return yInput;
+		}
+	}
+
+
 	Vector2 slideInput;
 	float originalRotation;
-	float xInput;
-	float yInput;
+
 	float xSensitive = 2000f;
 	float ySensitive = 900F;
 	float yRotation = 0.0f;
@@ -23,7 +37,7 @@ public class FPSCamera : Singleton<FPSCamera> {
 		}
 	}
 
-	PlayerController playerController;
+	public Transform playerTrans;
 
 	public float zSmooth = 10;
 	public float xPosition = 0;
@@ -58,7 +72,6 @@ public class FPSCamera : Singleton<FPSCamera> {
 
 	void InitCamera () {
 		cameraHandleArea.FingerBound = new Rect(0,0, ScreenHelper.ScreenSize.x*3, ScreenHelper.ScreenSize.y);
-		playerController = GetComponentInParent<PlayerController> ();
 		cameraTrans = PlayerCamera.GetComponent<Transform> ();
 		originalRotation = cameraTrans.rotation.eulerAngles.y;
 		originalPosition = cameraTrans.localPosition;
@@ -68,8 +81,6 @@ public class FPSCamera : Singleton<FPSCamera> {
 	void Update () {
 		if (isInited) {
 			HandleTouch ();
-			RotatePlayer ();
-			HandleWeapon ();
 		}
 	}
 
@@ -115,68 +126,12 @@ public class FPSCamera : Singleton<FPSCamera> {
 				}
 			}
 		}
-	}
 
-
-	void RotatePlayer () {
 		xInput = (slideInput.x  * ((xSensitive*rotateSensitive) * 0.01f)) / ScreenHelper.DPI;
 		yInput = (slideInput.y * ((ySensitive*rotateSensitive) * 0.01f)) / ScreenHelper.DPI;
-
-		xRotation += xInput * rotateCoef;
-		yRotation += yInput * rotateCoef;
-		yRotation = Mathf.Clamp(yRotation, minYAngle, maxYAngle);
-
-		playerController.Transform.rotation =  Quaternion.Slerp (playerController.Transform.rotation, Quaternion.Euler(0, originalRotation + xRotation, 0),  0.1f);
-		cameraTrans.localRotation =  Quaternion.Slerp (cameraTrans.localRotation, Quaternion.Euler(cameraTrans.localRotation.x - yRotation, 0, 0),  0.1f);
 	}
 
-	void HandleWeapon () {
-		
-		Weapon currentWeapon = PlayerController.Instance.CurrentWeapon;
-
-		if (xInput < -1.5f && weaponRoot.localPosition.x > -0.02f) {
-			xPosition = -0.02f;
-		} else if (xInput > 1.5f && weaponRoot.localPosition.x < 0.02f) {
-			xPosition = 0.02f;
-		}
-
-		if (yInput < -1f && weaponRoot.localPosition.y > -0.009f) {
-			yCoef = 0.009f;
-		} else if (yInput > 1f && weaponRoot.localPosition.y < 0.009f) {
-			yCoef = -0.009f;
-		}
-
-		if(!PlayerController.Instance.IsAiming){
-			if(playerCamera.fieldOfView < 42){
-				playerCamera.fieldOfView = Mathf.Lerp(playerCamera.fieldOfView, 42, 0.1f);
-			}
-
-			// Apply slide effect on arms
-			weaponRoot.localPosition = Vector3.Lerp(weaponRoot.localPosition, new Vector3(xPosition,yPosition+yCoef,zPosition),  Time.deltaTime * zSmooth);
-
-			// Reinit the rotate speed
-			weaponRoot.localRotation =  Quaternion.Slerp (weaponRoot.localRotation, Quaternion.Euler(playerController.InClin, 0, 0),  0.1f);
-			rotateCoef = 1f;
-
-//			if (MSPControl.HideCrossHair && CurrentWeapon.firearms){
-//				MSPControl.HideCrossHair = !MSPControl.HideCrossHair;
-//			}
-		}else if (PlayerController.Instance.IsAiming && !PlayerController.Instance.IsReloading && PlayerController.Instance.CurrentWeapon.isFirearms){
-			if(playerCamera.fieldOfView > 20){
-				playerCamera.fieldOfView = Mathf.Lerp(playerCamera.fieldOfView, playerController.CurrentWeapon.zoomAmout, 0.1f);
-			}
-
-			weaponRoot.localPosition = Vector3.Lerp(weaponRoot.localPosition, new Vector3(currentWeapon.aimPosition.x,
-				yPosition + currentWeapon.aimPosition.y, zPosition / 2 + currentWeapon.aimPosition.z), Time.deltaTime * zSmooth);
-			
-			weaponRoot.localRotation =  Quaternion.Slerp (weaponRoot.localRotation, Quaternion.Euler(currentWeapon.aimAngleX, currentWeapon.aimAngleY, currentWeapon.aimAngleZ),  0.1f);
-
-			// Divide the rotate speed by 2
-			rotateCoef = 0.5f;
-
-//			if (!MSPControl.HideCrossHair){
-//				MSPControl.HideCrossHair = !MSPControl.HideCrossHair;
-//			}
-		}
+	public void DoRecoil(float recoil) {
+		yRotation += recoil * Time.deltaTime * 20f;
 	}
 }

@@ -44,7 +44,7 @@ public class Ladder : MonoBehaviour {
 
 		if  (other.tag == "Player")
 		{
-			playercontroller controller = other.GetComponent<playercontroller>();
+			PlayerControllerPC controller = other.GetComponent<PlayerControllerPC>();
 			ControllerY = other.transform.position.y;
 			test =true;
 			delta = ladderTop.position - ladderBottom.position;
@@ -89,7 +89,7 @@ public class Ladder : MonoBehaviour {
 	{
 		if (other.tag == "Player")
 		{
-			playercontroller controller = other.GetComponent<playercontroller>();
+			PlayerControllerPC controller = other.GetComponent<PlayerControllerPC>();
 
 			controller.climbladder = false;
 			test = false;

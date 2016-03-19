@@ -105,7 +105,7 @@ public class crossbow : MonoBehaviour {
 			weaponnextfield = weaponnormalFOV;
 			nextField = normalFOV;
 		}
-		playercontroller playercontrol = player.GetComponent<playercontroller>();
+		PlayerControllerPC playercontrol = player.GetComponent<PlayerControllerPC>();
 		WeaponHandler inventory = player.GetComponent<WeaponHandler>();
 		inventory.currentammo = currentammo;
 		inventory.totalammo = ammo;
@@ -307,7 +307,7 @@ public class crossbow : MonoBehaviour {
 
 	IEnumerator setreload(float waitTime)
 	{
-		playercontroller controller = player.GetComponent<playercontroller>();
+		PlayerControllerPC controller = player.GetComponent<PlayerControllerPC>();
 		WeaponHandler inventory = player.GetComponent<WeaponHandler>();
 		controller.canclimb = false;
 

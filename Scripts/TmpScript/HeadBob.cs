@@ -69,7 +69,7 @@ public class HeadBob : MonoBehaviour {
 
 		float yPos = springPos * jumplandMove;
 
-		playercontroller playercontrol = player.GetComponent<playercontroller>();
+		PlayerControllerPC playercontrol = player.GetComponent<PlayerControllerPC>();
 
 
 

@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
-public class playercontroller : Singleton<playercontroller> {
+public class PlayerControllerPC : Singleton<PlayerControllerPC> {
 
 
 	public Transform mycamera;
@@ -95,6 +95,7 @@ public class playercontroller : Singleton<playercontroller> {
 	}
 	
 
+	#if UNITY_EDITOR
 	void Update () 
 	{
 		Animator meshanimator = playermesh.GetComponent<Animator>();
@@ -107,7 +108,7 @@ public class playercontroller : Singleton<playercontroller> {
 
 
 		CharacterController controller = GetComponent<CharacterController>();
-		playerrotate rotatescript = GetComponent<playerrotate>();
+//		playerrotate rotatescript = GetComponent<playerrotate>();
 		WeaponHandler inventory = GetComponent<WeaponHandler>();	
 		Vector3 velocity = controller.velocity;
 		localvelocity = transform.InverseTransformDirection(velocity);
@@ -142,7 +143,7 @@ public class playercontroller : Singleton<playercontroller> {
 			}
 			meshanimator.SetBool ("climbladder", true);
 			meshanimator.SetFloat("ver", Input.GetAxis("Vertical"));
-			rotatescript.enabled = false;
+//			rotatescript.enabled = false;
 
 			targetDirection = (ver * climbdirection);
 			targetDirection = targetDirection.normalized;
@@ -150,8 +151,8 @@ public class playercontroller : Singleton<playercontroller> {
 
 			moveDirection = targetDirection * climbspeed;
 			Quaternion wantedrotation = Quaternion.LookRotation(ladderforward,Vector3.up);
-			transform.rotation = Quaternion.Lerp(transform.rotation,wantedrotation,Time.deltaTime * 8f);
 
+			transform.rotation = Quaternion.Lerp(transform.rotation,wantedrotation,Time.deltaTime * 8f);
 		} 
 		else 
 		{
@@ -161,7 +162,7 @@ public class playercontroller : Singleton<playercontroller> {
 			playermesh.transform.localPosition = Vector3.MoveTowards(playermesh.transform.localPosition,playermeshNormalPosition, Time.deltaTime * 2f);
 			meshanimator.SetBool ("climbladder", false);
 			//playerskinnedmesh.GetComponent<Renderer>().material.SetFloat("_cutoff", 1f);
-			rotatescript.enabled = true;
+//			rotatescript.enabled = true;
 
 			targetDirection = (hor * right) + (ver * forward);
 			targetDirection = targetDirection.normalized;
@@ -304,6 +305,8 @@ public class playercontroller : Singleton<playercontroller> {
 
 	
 	}
+	#endif
+
 	void Damage (float damage) 
 	{
 		camerarotate cameracontroller = recoilCamera.GetComponent<camerarotate>();

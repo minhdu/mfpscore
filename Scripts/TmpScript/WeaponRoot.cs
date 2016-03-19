@@ -45,9 +45,8 @@ public class WeaponRoot : MonoBehaviour {
 		Vector3 velocityChange = velocity - prevVelocity;
 		prevPosition = player.transform.position;
 		prevVelocity = velocity;
-		playercontroller playercontrol = player.GetComponent<playercontroller>();
 		springVelocity -= velocityChange.y;		
-		if (((Input.GetButton("Aim")|| 	Input.GetAxis("Aim") > 0.1)) && !playercontrol.running)
+		if (WeaponHandler.Instance.CurrentWeapon.IsAiming)
 		{
 			currentsway = maxSway/2.5f;
 			currentbob = aimbob;
@@ -75,43 +74,45 @@ public class WeaponRoot : MonoBehaviour {
 		float yPos = springPos * jumplandMove;
 		float moveX = Mathf.Sin(headbobStepCounter)* bobX * currentbob;
 		float moveY = Mathf.Sin(headbobStepCounter * 2) * bobY * -1f * currentbob;
-		if (player.GetComponent<CharacterController>().isGrounded) 
-		{
-			
-			//dostepbob
-			if (player.GetComponent<CharacterController>().velocity.magnitude > 0.2f)
-			{
-				headbobStepCounter += Vector3.Distance (parentLastPosition, transform.parent.position) * headbobSpeed;
-			}
-			else //returnNormal
-			{
-				headbobStepCounter = 0f;
-			}
-
-
-		} 
+//		if (player.GetComponent<CharacterController>().isGrounded) 
+//		{
+//			
+//			//dostepbob
+//			if (player.GetComponent<CharacterController>().velocity.magnitude > 0.2f)
+//			{
+//				headbobStepCounter += Vector3.Distance (parentLastPosition, transform.parent.position) * headbobSpeed;
+//			}
+//			else //returnNormal
+//			{
+//				headbobStepCounter = 0f;
+//			}
+//
+//
+//		} 
 
 
 
 
 	
 
-		Vector3 playervelocity = playercontrol.localvelocity;
-		if (playervelocity.x > 0.2f)
-		{
-			//Sway right
-			currentrotation = currentsway  * playervelocity.x;
-		}
+//		Vector3 playervelocity = playercontrol.localvelocity;
+//		if (playervelocity.x > 0.2f)
+//		{
+//			//Sway right
+//			currentrotation = currentsway  * playervelocity.x;
+//		}
+//
+//		else if (playervelocity.x < -0.2f)
+//		{
+//			//Sway left
+//			currentrotation = -currentsway * -playervelocity.x;
+//		}
+//		else
+//		{
+//			currentrotation = 0f;
+//		}
+		currentrotation = currentsway * FPSCamera.Instance.playerTrans.InverseTransformDirection(velocity).x;
 
-		else if (playervelocity.x < -0.2f)
-		{
-			//Sway left
-			currentrotation = -currentsway * -playervelocity.x;
-		}
-		else
-		{
-			currentrotation = 0f;
-		}
 		Vector3 Wantedrotation = new Vector3(0f,0f, currentrotation);
 
 		transform.localRotation = Quaternion.Lerp(transform.localRotation,Quaternion.Euler(Wantedrotation),moveSpeed * Time.deltaTime);

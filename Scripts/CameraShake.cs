@@ -19,19 +19,19 @@ public class CameraShake : Singleton<CameraShake> {
 	}
 
 	public void Idle () {
-		if (!isIdle && idleTween != null) {
-			LeanTween.resume (idleTween.uniqueId);
-			return;
-		}
-		isIdle = true;
-		idleTween = LeanTween.moveLocal(gameObject, idleVector, 1.5f).setEase(LeanTweenType.easeInSine).setLoopPingPong(-1);
+//		if (!isIdle && idleTween != null) {
+//			LeanTween.resume (idleTween.uniqueId);
+//			return;
+//		}
+//		isIdle = true;
+//		idleTween = LeanTween.moveLocal(gameObject, idleVector, 1.5f).setEase(LeanTweenType.easeInSine).setLoopPingPong(-1);
 	}
 
 	public void StopIdle () {
-		if (idleTween != null) {
-			LeanTween.pause (idleTween.uniqueId);
-			isIdle = false;
-		}
+//		if (idleTween != null) {
+//			LeanTween.pause (idleTween.uniqueId);
+//			isIdle = false;
+//		}
 	}
 
 	public void GrenadeShake (Action onShakeComplete=null) {
@@ -55,19 +55,19 @@ public class CameraShake : Singleton<CameraShake> {
 	}
 
 	public void ShakeLoop (float amount, float preiodTime) {
-		LeanTween.rotateAround(gameObject, Vector3.right, amount, preiodTime)
-			.setEase(LeanTweenType.easeShake) // this is a special ease that is good for shaking
-			.setLoopPingPong()
-			.setRepeat(-1);
+//		LeanTween.rotateAround(gameObject, Vector3.right, amount, preiodTime)
+//			.setEase(LeanTweenType.easeShake) // this is a special ease that is good for shaking
+//			.setLoopPingPong()
+//			.setRepeat(-1);
 	}
 
 	public void ShootingShake (float amount, float time) {
-		shootTween = LeanTween.rotateAroundLocal(gameObject, Vector3.right, amount, time)
-			.setEase(LeanTweenType.easeShake).setLoopPingPong(-1);
+//		shootTween = LeanTween.rotateAroundLocal(gameObject, Vector3.right, amount, time)
+//			.setEase(LeanTweenType.easeShake).setLoopPingPong(-1);
 	}
 
 	public void StopShootingShake () {
-		if(shootTween != null)
-			LeanTween.cancel (shootTween.uniqueId);
+//		if(shootTween != null)
+//			LeanTween.cancel (shootTween.uniqueId);
 	}
 }

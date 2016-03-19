@@ -109,7 +109,7 @@ public class sniper : MonoBehaviour {
 			weaponnextfield = weaponnormalFOV;
 			nextField = normalFOV;
 		}
-		playercontroller playercontrol = player.GetComponent<playercontroller>();
+		PlayerControllerPC playercontrol = player.GetComponent<PlayerControllerPC>();
 		WeaponHandler inventory = player.GetComponent<WeaponHandler>();
 		inventory.currentammo = currentammo;
 		inventory.totalammo = ammo;
@@ -363,7 +363,7 @@ public class sniper : MonoBehaviour {
 		myAudioSource.volume = 1;
 		myAudioSource.Play();		
 		GetComponent<Animation> ().Play(reloadAnim.name);
-		playercontroller playercontrol = player.GetComponent<playercontroller>();
+		PlayerControllerPC playercontrol = player.GetComponent<PlayerControllerPC>();
 		playercontrol.canclimb = false;
 
 		

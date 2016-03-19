@@ -17,18 +17,19 @@ public class camerarotate : MonoBehaviour {
 	}
 	
 
+	#if UNITY_EDITOR
 	void Update () {
 
-		//Cursor.lockState = CursorLockMode.Locked;
+		Cursor.lockState = CursorLockMode.Locked;
 
 		if (Input.GetButton("Aim"))
 
 		{
-sensitivityY = aimSens;
+			sensitivityY = aimSens;
 		}
 		else
 		{
-sensitivityY = normalSens;
+			sensitivityY = normalSens;
 		}
 
 		rotationY += Input.GetAxis("Mouse Y") * sensitivityY * smooth * (Time.deltaTime * speed);
@@ -39,13 +40,10 @@ sensitivityY = normalSens;
 		
 		
 		transform.localEulerAngles = new Vector3(-rotationY, transform.localEulerAngles.y, 0);
-	
 	}
-	void dorecoil(float recoil)
-	{
-			
+	#endif
 
+	void dorecoil(float recoil) {
 		rotationY += recoil * Time.deltaTime * 20f;
-
 	}
 }

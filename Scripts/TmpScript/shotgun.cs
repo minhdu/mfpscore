@@ -116,28 +116,28 @@ public class shotgun : MonoBehaviour {
 			weaponnextfield = weaponnormalFOV;
 			nextField = normalFOV;
 		}
-		playercontroller playercontrol = player.GetComponent<playercontroller>();
+		//PlayerControllerPC playercontrol = player.GetComponent<PlayerControllerPC>();
 		WeaponHandler inventory = player.GetComponent<WeaponHandler>();
 		inventory.currentammo = currentammo;
 		inventory.totalammo = ammo;
-		if (playercontrol.running)
-		{
-			canfire = false;
-
-			wantedrotation = new Vector3(Xtilt + runXrotation,Ytilt,0f);
-
-		}
-		else
-		{
-			canfire = true;
-
-			wantedrotation = new Vector3(Xtilt,Ytilt,0f);
-
-		}
+//		if (playercontrol.running)
+//		{
+//			canfire = false;
+//
+//			wantedrotation = new Vector3(Xtilt + runXrotation,Ytilt,0f);
+//
+//		}
+//		else
+//		{
+//			canfire = true;
+//
+//			wantedrotation = new Vector3(Xtilt,Ytilt,0f);
+//
+//		}
 
 		transform.localRotation = Quaternion.Lerp(transform.localRotation,Quaternion.Euler(wantedrotation),5f * Time.deltaTime);
 
-		if ((Input.GetButton("Aim")|| 	Input.GetAxis("Aim") > 0.1) && canaim && !playercontrol.running)
+		if ((Input.GetButton("Aim")|| 	Input.GetAxis("Aim") > 0.1) && canaim)
 		{
 			inaccuracy = spreadAim;
 
@@ -249,7 +249,7 @@ public class shotgun : MonoBehaviour {
 			transform.localPosition = new Vector3(transform.localPosition.x, transform.localPosition.y ,transform.localPosition.z + randomZ);
 			camerarotate cameracontroller = recoilCamera.GetComponent<camerarotate>();
 
-			cameracontroller.SendMessage("dorecoil", recoil,SendMessageOptions.DontRequireReceiver);
+			//cameracontroller.SendMessage("dorecoil", recoil,SendMessageOptions.DontRequireReceiver);
 			StartCoroutine(setfire());
 
 
@@ -316,8 +316,8 @@ public class shotgun : MonoBehaviour {
 		canaim = false;
 		WeaponHandler inventoryscript = player.GetComponent<WeaponHandler>();
 		inventoryscript.canswitch = false;
-		playercontroller controller = player.GetComponent<playercontroller>();
-		controller.canclimb = false;
+		//PlayerControllerPC controller = player.GetComponent<PlayerControllerPC>();
+		//controller.canclimb = false;
 		
 		//GetComponent<Animation>()[reloadAnim.name].time = startTime;
 		GetComponent<Animation> ().Play(toreloadAnim.name);
@@ -354,7 +354,7 @@ public class shotgun : MonoBehaviour {
 		StartCoroutine(ejectshell(shellejectdelay *1.5f));
 		yield return new WaitForSeconds (GetComponent<Animation> () [reloadlastAnim.name].length);
 		
-		controller.canclimb = true;
+//		controller.canclimb = true;
 		isreloading = false;
 		canaim = true;
 		inventoryscript.canswitch = true;

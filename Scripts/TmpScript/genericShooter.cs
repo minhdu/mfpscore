@@ -81,7 +81,27 @@ public class genericShooter : MonoBehaviour {
 
 	[SerializeField]
 	bool isShooting = false;
+	public bool IsShooting {
+		get {
+			return isShooting;
+		}
+	}
+
+	[SerializeField]
 	bool isAiming = false;
+	public bool IsAiming {
+		get {
+			return isAiming;
+		}
+	}
+
+	[SerializeField]
+	bool isReloading = false;
+	public bool IsReloading {
+		get {
+			return isReloading;
+		}
+	}
 
 	void Start()
 	{
@@ -118,28 +138,28 @@ public class genericShooter : MonoBehaviour {
 			weaponnextfield = weaponnormalFOV;
 			nextField = normalFOV;
 		}
-		playercontroller playercontrol = playercontroller.Instance;
+		//PlayerControllerPC playercontrol = PlayerControllerPC.Instance;
 		WeaponHandler inventory = player.GetComponent<WeaponHandler>();
 		inventory.currentammo = currentammo;
 		inventory.totalammo = ammo;
-		if (playercontrol.running)
-		{
-			canfire = false;
-
-			wantedrotation = new Vector3(Xtilt + runXrotation,Ytilt,0f);
-
-		}
-		else
-		{
-			canfire = true;
-
-			wantedrotation = new Vector3(Xtilt,Ytilt,0f);
-
-		}
+//		if (playercontrol.running)
+//		{
+//			canfire = false;
+//
+//			wantedrotation = new Vector3(Xtilt + runXrotation,Ytilt,0f);
+//
+//		}
+//		else
+//		{
+//			canfire = true;
+//
+//			wantedrotation = new Vector3(Xtilt,Ytilt,0f);
+//
+//		}
 
 		trans.localRotation = Quaternion.Lerp(trans.localRotation,Quaternion.Euler(wantedrotation),5f * Time.deltaTime);
 
-		if (isAiming && canaim && !playercontrol.running)
+		if (isAiming && canaim)
 		{
 			inaccuracy = spreadAim;
 
@@ -192,12 +212,9 @@ public class genericShooter : MonoBehaviour {
 		if (isShooting  && !isreloading && canfire)
 
 		{
-			
+			CrossHair.Instance.Zoom ();
 			Shoot();
-			
 		}
-		
-		
 	}
 	
 	void doRetract()
@@ -242,13 +259,15 @@ public class genericShooter : MonoBehaviour {
 	void Shoot () {
 		if (!anim.isPlaying)
 		{
+
 			float randomZ = Random.Range (-0.05f,-0.01f);
 			//float randomY = Random.Range (-0.1f,0.1f);
 
 			trans.localPosition = new Vector3(trans.localPosition.x, trans.localPosition.y ,trans.localPosition.z + randomZ);
 			camerarotate cameracontroller = recoilCamera.GetComponent<camerarotate>();
 
-			cameracontroller.SendMessage("dorecoil", recoil,SendMessageOptions.DontRequireReceiver);
+			//cameracontroller.SendMessage("dorecoil", recoil,SendMessageOptions.DontRequireReceiver);
+			FPSCamera.Instance.DoRecoil(recoil);
 
 			StartCoroutine(flashthemuzzle());
 
@@ -326,8 +345,8 @@ public class genericShooter : MonoBehaviour {
 	}
 	IEnumerator setreload(float waitTime)
 	{
-		playercontroller playercontrol = playercontroller.Instance;
-		playercontrol.canclimb = false;
+		//PlayerControllerPC playercontrol = PlayerControllerPC.Instance;
+		//playercontrol.canclimb = false;
 		WeaponHandler selector = player.GetComponent<WeaponHandler>();
 		selector.canswitch = false;
 
@@ -338,7 +357,7 @@ public class genericShooter : MonoBehaviour {
 		isreloading = false;
 		canaim = true;
 		selector.canswitch = true;
-		playercontrol.canclimb = true;
+		//playercontrol.canclimb = true;
 		
 	}
 	IEnumerator flashthemuzzle()
@@ -366,6 +385,7 @@ public class genericShooter : MonoBehaviour {
 
 	public void StopShoot () {
 		isShooting = false;
+		CrossHair.Instance.Reverts();
 	}
 
 	public void DoReload () {
