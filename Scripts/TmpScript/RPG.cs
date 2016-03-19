@@ -106,7 +106,7 @@ public class RPG : MonoBehaviour {
 			nextField = normalFOV;
 		}
 		playercontroller playercontrol = player.GetComponent<playercontroller>();
-		weaponselector inventory = player.GetComponent<weaponselector>();
+		WeaponHandler inventory = player.GetComponent<WeaponHandler>();
 		inventory.currentammo = currentammo;
 		inventory.totalammo = ammo;
 		if (playercontrol.running)
@@ -314,7 +314,7 @@ public class RPG : MonoBehaviour {
 	IEnumerator setreload(float waitTime)
 	{
 		playercontroller controller = player.GetComponent<playercontroller>();
-		weaponselector inventory = player.GetComponent<weaponselector>();
+		WeaponHandler inventory = player.GetComponent<WeaponHandler>();
 		isreloading = true;
 		controller.canclimb = false;
 		inventory.canswitch = false;

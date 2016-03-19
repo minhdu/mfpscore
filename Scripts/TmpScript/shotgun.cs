@@ -117,7 +117,7 @@ public class shotgun : MonoBehaviour {
 			nextField = normalFOV;
 		}
 		playercontroller playercontrol = player.GetComponent<playercontroller>();
-		weaponselector inventory = player.GetComponent<weaponselector>();
+		WeaponHandler inventory = player.GetComponent<WeaponHandler>();
 		inventory.currentammo = currentammo;
 		inventory.totalammo = ammo;
 		if (playercontrol.running)
@@ -314,7 +314,7 @@ public class shotgun : MonoBehaviour {
 		//reload first
 		isreloading = true;
 		canaim = false;
-		weaponselector inventoryscript = player.GetComponent<weaponselector>();
+		WeaponHandler inventoryscript = player.GetComponent<WeaponHandler>();
 		inventoryscript.canswitch = false;
 		playercontroller controller = player.GetComponent<playercontroller>();
 		controller.canclimb = false;

@@ -124,7 +124,7 @@ public class revolver : MonoBehaviour {
 			nextField = normalFOV;
 		}
 		playercontroller playercontrol = player.GetComponent<playercontroller>();
-		weaponselector inventory = player.GetComponent<weaponselector>();
+		WeaponHandler inventory = player.GetComponent<WeaponHandler>();
 		inventory.currentammo = currentammo;
 		inventory.totalammo = ammo;
 		if (playercontrol.running)
@@ -394,7 +394,7 @@ public class revolver : MonoBehaviour {
 		canaim = false;
 		playercontroller controller = player.GetComponent<playercontroller>();
 		controller.canclimb = false;
-		weaponselector inventoryscript = player.GetComponent<weaponselector>();
+		WeaponHandler inventoryscript = player.GetComponent<WeaponHandler>();
 		inventoryscript.canswitch = false;
 		myAudioSource.clip = toreloadSound;
 		myAudioSource.Play();

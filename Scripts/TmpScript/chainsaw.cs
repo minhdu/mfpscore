@@ -72,7 +72,7 @@ public class chainsaw : MonoBehaviour {
 	void Update () 
 	{
 
-		weaponselector inventory = player.GetComponent<weaponselector>();
+		WeaponHandler inventory = player.GetComponent<WeaponHandler>();
 		inventory.currentammo = 0;
 		inventory.totalammo = 0;
 		float step = speed * Time.deltaTime;

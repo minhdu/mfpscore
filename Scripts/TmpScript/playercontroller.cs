@@ -108,7 +108,7 @@ public class playercontroller : Singleton<playercontroller> {
 
 		CharacterController controller = GetComponent<CharacterController>();
 		playerrotate rotatescript = GetComponent<playerrotate>();
-		weaponselector inventory = GetComponent<weaponselector>();	
+		WeaponHandler inventory = GetComponent<WeaponHandler>();	
 		Vector3 velocity = controller.velocity;
 		localvelocity = transform.InverseTransformDirection(velocity);
 

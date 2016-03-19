@@ -111,7 +111,7 @@ public class Thumper : MonoBehaviour {
 			nextField = normalFOV;
 		}
 		playercontroller playercontrol = player.GetComponent<playercontroller>();
-		weaponselector inventory = player.GetComponent<weaponselector>();
+		WeaponHandler inventory = player.GetComponent<WeaponHandler>();
 		inventory.currentammo = currentammo;
 		inventory.totalammo = ammo;
 		if (playercontrol.running)
@@ -325,7 +325,7 @@ public class Thumper : MonoBehaviour {
 	{
 		playercontroller playercontrol = player.GetComponent<playercontroller>();
 		playercontrol.canclimb = false;
-		weaponselector selector = player.GetComponent<weaponselector>();
+		WeaponHandler selector = player.GetComponent<WeaponHandler>();
 		selector.canswitch = false;
 		canaim = false;
 		isreloading = true;

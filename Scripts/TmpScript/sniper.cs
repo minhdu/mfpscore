@@ -110,7 +110,7 @@ public class sniper : MonoBehaviour {
 			nextField = normalFOV;
 		}
 		playercontroller playercontrol = player.GetComponent<playercontroller>();
-		weaponselector inventory = player.GetComponent<weaponselector>();
+		WeaponHandler inventory = player.GetComponent<WeaponHandler>();
 		inventory.currentammo = currentammo;
 		inventory.totalammo = ammo;
 		if (playercontrol.running)
@@ -355,7 +355,7 @@ public class sniper : MonoBehaviour {
 	}
 	IEnumerator setreload()
 	{
-		weaponselector selector = player.GetComponent<weaponselector>();
+		WeaponHandler selector = player.GetComponent<WeaponHandler>();
 		selector.canswitch = false;
 		isreloading = true;
 		myAudioSource.clip = reloadSound;

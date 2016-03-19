@@ -106,7 +106,7 @@ public class pulser : MonoBehaviour {
 			nextField = normalFOV;
 		}
 		playercontroller playercontrol = player.GetComponent<playercontroller>();
-		weaponselector inventory = player.GetComponent<weaponselector>();
+		WeaponHandler inventory = player.GetComponent<WeaponHandler>();
 		inventory.currentammo = currentammo;
 		inventory.totalammo = ammo;
 		if (playercontrol.running)
@@ -308,7 +308,7 @@ public class pulser : MonoBehaviour {
 
 	IEnumerator setreload(float waitTime)
 	{
-		weaponselector selector = player.GetComponent<weaponselector>();
+		WeaponHandler selector = player.GetComponent<WeaponHandler>();
 		selector.canswitch = false;
 		isreloading = true;
 		playercontroller playercontrol = player.GetComponent<playercontroller>();

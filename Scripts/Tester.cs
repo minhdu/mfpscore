@@ -4,12 +4,12 @@ using System.Collections;
 public class Tester : MonoBehaviour {
 
 	genericShooter shooter;
-	weaponselector wpSelector;
+	WeaponHandler wpSelector;
 
 	// Use this for initialization
 	void UpDateData () {
 		shooter = FindObjectOfType<genericShooter> ();
-		wpSelector = FindObjectOfType<weaponselector> ();
+		wpSelector = FindObjectOfType<WeaponHandler> ();
 	}
 	
 	public void DoShot (bool shot) {

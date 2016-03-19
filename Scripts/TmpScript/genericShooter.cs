@@ -119,7 +119,7 @@ public class genericShooter : MonoBehaviour {
 			nextField = normalFOV;
 		}
 		playercontroller playercontrol = playercontroller.Instance;
-		weaponselector inventory = player.GetComponent<weaponselector>();
+		WeaponHandler inventory = player.GetComponent<WeaponHandler>();
 		inventory.currentammo = currentammo;
 		inventory.totalammo = ammo;
 		if (playercontrol.running)
@@ -328,7 +328,7 @@ public class genericShooter : MonoBehaviour {
 	{
 		playercontroller playercontrol = playercontroller.Instance;
 		playercontrol.canclimb = false;
-		weaponselector selector = player.GetComponent<weaponselector>();
+		WeaponHandler selector = player.GetComponent<WeaponHandler>();
 		selector.canswitch = false;
 
 		isreloading = true;

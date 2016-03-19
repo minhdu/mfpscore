@@ -95,7 +95,7 @@ public class flamethrower : MonoBehaviour {
 			nextField = normalFOV;
 		}
 		playercontroller playercontrol = player.GetComponent<playercontroller>();
-		weaponselector inventory = player.GetComponent<weaponselector>();
+		WeaponHandler inventory = player.GetComponent<WeaponHandler>();
 		inventory.currentammo = Mathf.RoundToInt(currentammo);
 		inventory.totalammo = Mathf.RoundToInt(ammo);
 		if (playercontrol.running)
@@ -286,7 +286,7 @@ public class flamethrower : MonoBehaviour {
 
 	IEnumerator setreload(float waitTime)
 	{
-		weaponselector selector = player.GetComponent<weaponselector>();
+		WeaponHandler selector = player.GetComponent<WeaponHandler>();
 		selector.canswitch = false;
 		isreloading = true;
 		playercontroller playercontrol = player.GetComponent<playercontroller>();
