@@ -111,4 +111,10 @@ public class WeaponHandler : Singleton<WeaponHandler> {
 			currentWeapon.DoAim ();
 		}
 	}
+
+	public void DoThrowGrenade () {
+		if (currentWeapon != null) {
+			currentWeapon.DoThrowGrenade ();
+		}
+	}
 }

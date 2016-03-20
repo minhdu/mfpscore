@@ -483,5 +483,8 @@ public class revolver : MonoBehaviour, IGun {
 	public void DoAim () {
 		isAiming = !isAiming;
 	}
+
+	public void DoThrowGrenade () {
+	}
 }
 

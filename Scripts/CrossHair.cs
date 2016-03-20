@@ -9,7 +9,7 @@ public class CrossHair : Singleton<CrossHair> {
 	float zoomFactor = 0;
 	float increaseFactor = 0.02f;
 
-	new void Awake () {
+	void Awake () {
 		originalPosition = new Vector3[lines.Length];
 		for (int i = 0; i < lines.Length; i++) {
 			originalPosition [i] = lines [i].localPosition;

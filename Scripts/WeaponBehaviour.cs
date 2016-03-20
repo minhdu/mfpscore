@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public abstract class WeaponBehaviour : MonoBehaviour {
+public abstract class WeaponBehaviour : MonoBehaviour, IGun {
 
 	public Vector3 normalposition;
 	public Vector3 aimposition;	
@@ -13,9 +13,7 @@ public abstract class WeaponBehaviour : MonoBehaviour {
 	public float weaponaimFOV  = 20f;
 	public float speed = 1f;
 
-
 	public AudioSource myAudioSource;
-
 
 	public AudioSource fireAudioSource;
 	public AudioClip emptySound;
@@ -60,81 +58,73 @@ public abstract class WeaponBehaviour : MonoBehaviour {
 	public Camera weaponcamera;
 	public Transform recoilCamera;
 	public float runXrotation = 20;
-	private float nextField;
-	private float weaponnextfield;
+	protected float nextField;
+	protected float weaponnextfield;
 
 
-	private Vector3 wantedrotation;
-	private bool canaim = true;
+	protected Vector3 wantedrotation;
+	protected bool canaim = true;
 
-	private bool canfire = true;
-	private bool canreload = true;
-	private bool retract = false;	
-	private bool isreloading  = false;
+	protected bool canfire = true;
+	protected bool canreload = true;
+	protected bool retract = false;	
+	protected bool isreloading  = false;
 	public Transform grenadethrower;
 	public Transform rayfirer;
 	public Transform player;
 
-	Animation anim;
-	Transform trans;
+	protected Animation anim;
+	protected Transform trans;
 
 	[SerializeField]
-	bool isShooting = false;
+	protected bool isShooting = false;
 
 	[SerializeField]
-	bool isAiming = false;
+	protected bool isAiming = false;
 	public bool IsAiming () {
 		return isAiming;
 	}
 
 	[SerializeField]
-	bool isReloading = false;
+	protected bool isReloading = false;
 	public bool IsReloading {
 		get {
 			return isReloading;
 		}
 	}
 
-	void Start()
-	{
+	void Start() {
 		anim = GetComponent<Animation>();
 		trans = GetComponent<Transform> ();
 		nextField = normalFOV ;
 		weaponnextfield = weaponnormalFOV;
 		anim.Stop();
-		onstart();
+		OnStart();
 
 	}
 
-	void Update () 
-	{
-
-
+	void Update () {
 		float step = speed * Time.deltaTime;
 
 		float newField = Mathf.Lerp(Camera.main.fieldOfView, nextField, Time.deltaTime * 2);
 		float newfieldweapon = Mathf.Lerp(weaponcamera.fieldOfView, weaponnextfield, Time.deltaTime * 2);
 		Camera.main.fieldOfView = newField;
 		weaponcamera.fieldOfView = newfieldweapon;
-		float Xtilt = Input.GetAxisRaw("Mouse Y") * 20f * Time.smoothDeltaTime;
-		float Ytilt = Input.GetAxisRaw("Mouse X") * 20f * Time.smoothDeltaTime;
+		//float Xtilt = Input.GetAxisRaw("Mouse Y") * 20f * Time.smoothDeltaTime;
+		//float Ytilt = Input.GetAxisRaw("Mouse X") * 20f * Time.smoothDeltaTime;
 
-		if (Input.GetButton("ThrowGrenade") && !anim.isPlaying)
-		{
-			StartCoroutine(setThrowGrenade());
-		}
-		if (retract)
-		{
+		if (retract) {
 			canfire = false;
 			canaim = false;
 			trans.localPosition = Vector3.MoveTowards(trans.localPosition, retractPos, 5 * Time.deltaTime);
 			weaponnextfield = weaponnormalFOV;
 			nextField = normalFOV;
 		}
-		//PlayerControllerPC playercontrol = PlayerControllerPC.Instance;
+
 		WeaponHandler inventory = player.GetComponent<WeaponHandler>();
 		inventory.currentammo = currentammo;
 		inventory.totalammo = ammo;
+		canfire = true;
 		//		if (playercontrol.running)
 		//		{
 		//			canfire = false;
@@ -152,71 +142,46 @@ public abstract class WeaponBehaviour : MonoBehaviour {
 
 		trans.localRotation = Quaternion.Lerp(trans.localRotation,Quaternion.Euler(wantedrotation),5f * Time.deltaTime);
 
-		if (isAiming && canaim)
-		{
+		if (isAiming && canaim) {
 			inaccuracy = spreadAim;
 
 			trans.localPosition = Vector3.MoveTowards(trans.localPosition, aimposition, step);
 			weaponnextfield = weaponaimFOV;
 			nextField = aimFOV;
-
 		}
-		else
-		{
-
+		else {
 			inaccuracy = spreadNormal;
 
 			trans.localPosition = Vector3.MoveTowards(trans.localPosition, normalposition, step);
 			weaponnextfield = weaponnormalFOV;
 			nextField = normalFOV;
-
 		}
 
-
-
-
-
-
-		if (currentammo == 0 || currentammo  <= 0 )
-		{	
-
-			if (ammo <= 0)
-			{
+		if (currentammo == 0 || currentammo  <= 0 ) {	
+			if (ammo <= 0) {
 				canfire = false;
 				canreload = false;
-				if (isShooting && !myAudioSource.isPlaying)
-				{
+				if (isShooting && !myAudioSource.isPlaying) {
 					myAudioSource.PlayOneShot(emptySound);
-				}
-				else
-				{
+				} else {
 					canreload = true;
 				}
-			}
-			else 
-			{
+			} else {
 				Reload();
 			}
-
-
 		}
 
-
-		if (isShooting  && !isreloading && canfire)
-
-		{
+		if (isShooting  && !isreloading && canfire) {
 			CrossHair.Instance.Zoom ();
 			Shoot();
 		}
 	}
 
-	public virtual void doRetract()
-	{
+	protected virtual void DoRetract() {
 		anim.Play(hideAnim.name);
 	}
 
-	public virtual void onstart()
-	{
+	protected virtual void OnStart () {
 		myAudioSource.Stop();
 		fireAudioSource.Stop();
 
@@ -231,11 +196,8 @@ public abstract class WeaponBehaviour : MonoBehaviour {
 		anim.Stop();
 		if (isreloading) {
 			Reload ();
-		} 
-		else 
-		{
+		} else {
 			clipShell.gameObject.SetActive (true);
-
 
 			myAudioSource.clip = readySound;
 			myAudioSource.loop = false;
@@ -246,12 +208,10 @@ public abstract class WeaponBehaviour : MonoBehaviour {
 			canaim = true;
 			canfire = true;
 		}
-
 	}
 
-	public virtual void Shoot () {
-		if (!anim.isPlaying)
-		{
+	protected virtual void Shoot () {
+		if (!anim.isPlaying) {
 
 			float randomZ = Random.Range (-0.05f,-0.01f);
 			//float randomY = Random.Range (-0.1f,0.1f);
@@ -259,10 +219,9 @@ public abstract class WeaponBehaviour : MonoBehaviour {
 			trans.localPosition = new Vector3(trans.localPosition.x, trans.localPosition.y ,trans.localPosition.z + randomZ);
 			camerarotate cameracontroller = recoilCamera.GetComponent<camerarotate>();
 
-			//cameracontroller.SendMessage("dorecoil", recoil,SendMessageOptions.DontRequireReceiver);
 			FPSCamera.Instance.DoRecoil(recoil);
 
-			StartCoroutine(flashthemuzzle());
+			StartCoroutine(FlashMuzzle());
 
 			raycastfire.Instance.SendMessage("fire",SendMessageOptions.DontRequireReceiver);
 
@@ -272,22 +231,18 @@ public abstract class WeaponBehaviour : MonoBehaviour {
 			anim[fireAnim.name].speed = fireAnimSpeed;     
 			anim.Play(fireAnim.name);
 			currentammo -=1;
-			StartCoroutine(ejectshell(shellejectdelay));
+			StartCoroutine(EjectShell(shellejectdelay));
 
 			if (currentammo <= 0) {
 				Reload();
 			}
-
 		}
 	}
 
-	public virtual void Reload() {
-
+	protected virtual void Reload () {
 		if (!anim.isPlaying && canreload && !isreloading) {
-
-
-			StartCoroutine(setreload (anim[reloadAnim.name].length));
-			StartCoroutine (deactivateShell (anim [reloadAnim.name].length * 0.5f)); 
+			StartCoroutine(SetReload (anim[reloadAnim.name].length));
+			StartCoroutine (HideShell (anim [reloadAnim.name].length * 0.5f)); 
 			myAudioSource.clip = reloadSound;
 			myAudioSource.loop = false;
 			myAudioSource.volume = 1;
@@ -295,33 +250,18 @@ public abstract class WeaponBehaviour : MonoBehaviour {
 
 			anim.Play(reloadAnim.name);
 
-
-
 			ammoToReload = Mathf.Clamp (ammoToReload, ammoToReload, ammo);
 
 			ammo -= ammoToReload;
 			currentammo += ammoToReload;
-
-
-
-
-		} 
-
-
-
+		}
 	}
 
-
-
-	public virtual void doNormal()
-	{
-
-
-		onstart();
+	protected virtual void DoNormal () {
+		OnStart();
 	}
 
-	public virtual IEnumerator ejectshell(float waitTime)
-	{
+	protected virtual IEnumerator EjectShell (float waitTime) {
 		yield return new WaitForSeconds(waitTime);
 		GameObject shellInstance;
 		shellInstance = Instantiate(shell, shellPos.transform.position,shellPos.transform.rotation) as GameObject;
@@ -330,16 +270,14 @@ public abstract class WeaponBehaviour : MonoBehaviour {
 		shellInstance.GetComponent<Rigidbody>().AddRelativeTorque(500,20,800);
 
 	}
-	public virtual IEnumerator deactivateShell(float waitTime)
-	{
+
+	protected virtual IEnumerator HideShell (float waitTime) {
 		clipShell.gameObject.SetActive (false);
 		yield return new WaitForSeconds(waitTime);
 		clipShell.gameObject.SetActive (true);
 	}
-	public virtual IEnumerator setreload(float waitTime)
-	{
-		//PlayerControllerPC playercontrol = PlayerControllerPC.Instance;
-		//playercontrol.canclimb = false;
+
+	protected virtual IEnumerator SetReload (float waitTime) {
 		WeaponHandler selector = player.GetComponent<WeaponHandler>();
 		selector.canswitch = false;
 
@@ -350,18 +288,16 @@ public abstract class WeaponBehaviour : MonoBehaviour {
 		isreloading = false;
 		canaim = true;
 		selector.canswitch = true;
-		//playercontrol.canclimb = true;
-
 	}
-	public virtual IEnumerator flashthemuzzle()
-	{
+
+	protected virtual IEnumerator FlashMuzzle () {
 		muzzle.transform.localEulerAngles = new Vector3(0f,0f,Random.Range(0f,360f));
 		muzzle.gameObject.SetActive(true);
 		yield return new WaitForSeconds(0.05f);
 		muzzle.gameObject.SetActive(false);
 	}
-	public virtual IEnumerator setThrowGrenade()
-	{
+
+	protected virtual IEnumerator SetThrowGrenade () {
 		retract = true;
 		grenadethrower.gameObject.SetActive(true);
 		grenadethrower.gameObject.BroadcastMessage("throwstuff");
@@ -370,7 +306,6 @@ public abstract class WeaponBehaviour : MonoBehaviour {
 		canaim = true;
 		grenadethrower.gameObject.SetActive(false);
 	}
-
 
 	public void DoShoot () {
 		isShooting = true;
@@ -389,4 +324,9 @@ public abstract class WeaponBehaviour : MonoBehaviour {
 		isAiming = !isAiming;
 	}
 
+	public void DoThrowGrenade () {
+		if (!anim.isPlaying) {
+			StartCoroutine(SetThrowGrenade());
+		}
+	}
 }

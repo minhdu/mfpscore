@@ -8,4 +8,5 @@ public interface IGun {
 	void StopShoot ();
 	void DoReload ();
 	void DoAim ();
+	void DoThrowGrenade ();
 }

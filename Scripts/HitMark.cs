@@ -5,7 +5,7 @@ public class HitMark : Singleton<HitMark> {
 
 	RectTransform rectTransform;
 
-	new void Awake () {
+	void Awake () {
 		rectTransform = GetComponent<RectTransform> ();
 	}
 

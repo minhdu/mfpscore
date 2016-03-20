@@ -2,220 +2,26 @@
 using System.Collections;
 
 
-public class shotgun : MonoBehaviour, IGun {
+public class shotgun : WeaponBehaviour {
 
-	public Vector3 normalposition;
-	public Vector3 aimposition;	
-	public Vector3 retractPos;
-	
-	public float aimFOV = 45f;
-	public float normalFOV  = 65f;
-	public float weaponnormalFOV = 32f;
-	public float weaponaimFOV  = 20f;
-	public float speed = 1f;
-
-
-	public AudioSource myAudioSource;
-	public AudioSource fireAudioSource;
-	
-
-
-	
-	
-	public int ammoToReload = 20;
 	public Transform handshell;
 	
 
-	public AudioClip emptySound;
-	public AudioClip fireSound;
 	public AudioClip pumpSound;
-	public AudioClip readySound;
 	public AudioClip reloadonceSound;
 	public AudioClip reloadlastSound;
 
-	public int projectilecount = 1;
-	public float inaccuracy = 0.02f;
-	public float spreadNormal = 0.08f;
-	public float spreadAim = 0.02f;
-	public float force  = 500f;
-	public float damage = 50f;
-	public float range = 100f;
-	public float smoothdamping  = 2f;
-	public float recoil = 5f;
-
-
-	public AnimationClip fireAnim;
-	
-	
 	public AnimationClip toreloadAnim;
 	public AnimationClip reloadonceAnim;
 	public AnimationClip reloadlastAnim;
-	public AnimationClip readyAnim;
 	public AnimationClip pumpAnim;
-	public AnimationClip hideAnim;
-	public GameObject shell;
-
-	public Transform shellPos;
-
-	public float shellejectdelay = 0;
-	public int ammo = 200;
-	public int currentammo= 20;
 	
-	public Transform muzzle;
-
-
-
-	public Camera weaponcamera;
-	public Transform recoilCamera;
-	public float runXrotation = 20;
-	private float nextField;
-	private float weaponnextfield;
-
-
-	private Vector3 wantedrotation;
-	private bool canaim = true;
-
-	private bool canfire = true;
-	private bool canreload = true;
-	private bool retract = false;	
-	private bool isreloading  = false;
-	public Transform grenadethrower;
-	public Transform rayfirer;
-	public Transform player;
-
-	bool isAiming = false;
-	public bool IsAiming () {
-		return isAiming;
-	}
-
-	bool isShooting = false;
-
-	void Start()
-	{
-		
-		nextField = normalFOV ;
-		weaponnextfield = weaponnormalFOV;
-		GetComponent<Animation>().Stop();
-		onstart();
-
-	}
-	void Update () 
-	{
-		
-
-		float step = speed * Time.deltaTime;
-		
-		float newField = Mathf.Lerp(Camera.main.fieldOfView, nextField, Time.deltaTime * 2);
-		float newfieldweapon = Mathf.Lerp(weaponcamera.fieldOfView, weaponnextfield, Time.deltaTime * 2);
-		Camera.main.fieldOfView = newField;
-		weaponcamera.fieldOfView = newfieldweapon;
-		float Xtilt = Input.GetAxisRaw("Mouse Y") * 20f * Time.smoothDeltaTime;
-		float Ytilt = Input.GetAxisRaw("Mouse X") * 20f * Time.smoothDeltaTime;
-
-		if (Input.GetButton("ThrowGrenade") && !GetComponent<Animation>().isPlaying)
-		{
-			StartCoroutine(setThrowGrenade());
-		}
-		if (retract)
-		{
-			canfire = false;
-			canaim = false;
-			transform.localPosition = Vector3.MoveTowards(transform.localPosition, retractPos, 5 * Time.deltaTime);
-			weaponnextfield = weaponnormalFOV;
-			nextField = normalFOV;
-		}
-		//PlayerControllerPC playercontrol = player.GetComponent<PlayerControllerPC>();
-		WeaponHandler inventory = player.GetComponent<WeaponHandler>();
-		inventory.currentammo = currentammo;
-		inventory.totalammo = ammo;
-//		if (playercontrol.running)
-//		{
-//			canfire = false;
-//
-//			wantedrotation = new Vector3(Xtilt + runXrotation,Ytilt,0f);
-//
-//		}
-//		else
-//		{
-//			canfire = true;
-//
-//			wantedrotation = new Vector3(Xtilt,Ytilt,0f);
-//
-//		}
-
-		transform.localRotation = Quaternion.Lerp(transform.localRotation,Quaternion.Euler(wantedrotation),5f * Time.deltaTime);
-
-		if ((Input.GetButton("Aim")|| 	Input.GetAxis("Aim") > 0.1) && canaim)
-		{
-			inaccuracy = spreadAim;
-
-			transform.localPosition = Vector3.MoveTowards(transform.localPosition, aimposition, step);
-			weaponnextfield = weaponaimFOV;
-			nextField = aimFOV;
-
-		}
-		else
-		{
-			
-			inaccuracy = spreadNormal;
-			
-			transform.localPosition = Vector3.MoveTowards(transform.localPosition, normalposition, step);
-			weaponnextfield = weaponnormalFOV;
-			nextField = normalFOV;
-
-		}
-		
-		
-		
-		
-
-		
-		if (currentammo == 0 || currentammo  <= 0 )
-		{	
-			
-			if (ammo <= 0)
-			{
-				canfire = false;
-				canreload = false;
-				if ((Input.GetButton("Fire1") || Input.GetAxis ("Fire1")>0.1) && !myAudioSource.isPlaying)
-				{
-					myAudioSource.PlayOneShot(emptySound);
-				}
-				else
-				{
-					canreload = true;
-				}
-			}
-			else 
-			{
-				Reload();
-			}
-			
-			
-		}
-
-		
-		if ((Input.GetButton("Fire1")  || Input.GetAxis ("Fire1")>0.1)  && !isreloading && canfire)
-
-		{
-			
-			fire();
-			
-		}
-		
-		
-	}
-	
-	void doRetract()
-	{
-		GetComponent<Animation>().Play(hideAnim.name);
-	}
-	
-	void onstart()
-	{
+	protected override void OnStart() {
 		myAudioSource.Stop();
 		fireAudioSource.Stop();
 		handshell.gameObject.SetActive (false);
+
+		anim = GetComponent<Animation> ();
 
 		raycastfire weaponfirer = rayfirer.GetComponent<raycastfire>();
 		weaponfirer.inaccuracy = inaccuracy;
@@ -228,96 +34,42 @@ public class shotgun : MonoBehaviour, IGun {
 		if (isreloading) {
 			Reload ();
 		} 
-		else 
-		{
-
-
-
+		else {
 			myAudioSource.clip = readySound;
 			myAudioSource.loop = false;
 			myAudioSource.volume = 1;
 			myAudioSource.Play ();
 
-			GetComponent<Animation> ().Play (readyAnim.name);
+			anim.Play (readyAnim.name);
 			canaim = true;
 			canfire = true;
 		}
-		
 	}
 
-	void fire()
-	{
-		
-
-		if (!GetComponent<Animation>().isPlaying)
-		{
+	protected override void Shoot () {
+		if (!GetComponent<Animation>().isPlaying) {
 			float randomZ = Random.Range (-0.05f,-0.01f);
 			//float randomY = Random.Range (-0.1f,0.1f);
 
-			transform.localPosition = new Vector3(transform.localPosition.x, transform.localPosition.y ,transform.localPosition.z + randomZ);
-			camerarotate cameracontroller = recoilCamera.GetComponent<camerarotate>();
-
-			//cameracontroller.SendMessage("dorecoil", recoil,SendMessageOptions.DontRequireReceiver);
+			trans.localPosition = new Vector3(trans.localPosition.x, trans.localPosition.y, trans.localPosition.z + randomZ);
+			FPSCamera.Instance.DoRecoil(recoil);
 			StartCoroutine(setfire());
 
-
-
-		
-
-			
-			if (currentammo <= 0)
-			{
+			if (currentammo <= 0) {
 				Reload();
 			}
-			
 		}
 		
 		
 	}
 	
-	void Reload()
-	{
-
-
-
-
-
+	protected override void Reload() {
 		if (!GetComponent<Animation>().isPlaying && canreload && !isreloading ) {
-
-
 			StartCoroutine(setreload ());
-
-
-
-
 		} 
-
-
-
-	}
-	
-	
-
-	void doNormal()
-	{
-
-
-		onstart();
 	}
 
-	IEnumerator ejectshell(float waitTime)
-	{
-		yield return new WaitForSeconds(waitTime);
-		GameObject shellInstance;
-		shellInstance = Instantiate(shell, shellPos.transform.position,shellPos.transform.rotation) as GameObject;
-
-		shellInstance.GetComponent<Rigidbody>().AddRelativeForce(30,80,0);
-		shellInstance.GetComponent<Rigidbody>().AddRelativeTorque(500,20,800);
-		
-	}
-
-	IEnumerator setreload()
-	{
+	IEnumerator setreload() {
 		ammoToReload = Mathf.Clamp (ammoToReload, ammoToReload, ammo);
 		//reload first
 		isreloading = true;
@@ -330,13 +82,7 @@ public class shotgun : MonoBehaviour, IGun {
 		//GetComponent<Animation>()[reloadAnim.name].time = startTime;
 		GetComponent<Animation> ().Play(toreloadAnim.name);
 		yield return new WaitForSeconds (GetComponent<Animation> () [toreloadAnim.name].length );
-		
-		
-		
 
-		
-		
-		
 		while(currentammo != ammoToReload)
 		{
 			GetComponent<Animation> ().Play (reloadonceAnim.name);
@@ -359,7 +105,7 @@ public class shotgun : MonoBehaviour, IGun {
 		myAudioSource.Play();
 		//GetComponent<Animation>()[reloadAnim.name].time = startTime;
 		GetComponent<Animation> ().Play(reloadlastAnim.name);
-		StartCoroutine(ejectshell(shellejectdelay *1.5f));
+		StartCoroutine(EjectShell(shellejectdelay *1.5f));
 		yield return new WaitForSeconds (GetComponent<Animation> () [reloadlastAnim.name].length);
 		
 //		controller.canclimb = true;
@@ -370,10 +116,10 @@ public class shotgun : MonoBehaviour, IGun {
 		
 		
 	}
-	IEnumerator setfire()
-	{
+
+	IEnumerator setfire() {
 		if (currentammo > 1) {
-			StartCoroutine(flashthemuzzle());
+			StartCoroutine(FlashMuzzle());
 			raycastfire weaponfirer = rayfirer.GetComponent<raycastfire> ();
 			weaponfirer.SendMessage ("fire", SendMessageOptions.DontRequireReceiver);
 			
@@ -390,17 +136,16 @@ public class shotgun : MonoBehaviour, IGun {
 			
 			GetComponent<Animation> ().Play(pumpAnim.name);
 			
-			StartCoroutine (ejectshell (shellejectdelay));
+			StartCoroutine (EjectShell (shellejectdelay));
 			yield return new WaitForSeconds (GetComponent<Animation> () [pumpAnim.name].length);
 			
 			
 		} 
-		else if (currentammo <= 1) 
-		{
+		else if (currentammo <= 1) {
 			if (currentammo <= 0) {
 				Reload ();
 			}
-			StartCoroutine(flashthemuzzle());
+			StartCoroutine(FlashMuzzle());
 			raycastfire weaponfirer = rayfirer.GetComponent<raycastfire> ();
 			weaponfirer.SendMessage ("fire", SendMessageOptions.DontRequireReceiver);
 			
@@ -413,42 +158,6 @@ public class shotgun : MonoBehaviour, IGun {
 			currentammo -= 1;
 			yield return new WaitForSeconds (GetComponent<Animation> () [fireAnim.name].length);
 		}
-		
-		
-	}
-	IEnumerator flashthemuzzle()
-	{
-		muzzle.transform.localEulerAngles = new Vector3(0f,0f,Random.Range(0f,360f));
-		muzzle.gameObject.SetActive(true);
-		yield return new WaitForSeconds(0.05f);
-		muzzle.gameObject.SetActive(false);
-	}
-	IEnumerator setThrowGrenade()
-	{
-		retract = true;
-		grenadethrower.gameObject.SetActive(true);
-		grenadethrower.gameObject.BroadcastMessage("throwstuff");
-		yield return new WaitForSeconds(grenadethrower.GetComponent<Animation>()["throwAnim"].length);
-		retract = false;
-		canaim = true;
-		grenadethrower.gameObject.SetActive(false);
-	}
-
-	public void DoShoot () {
-		isShooting = true;
-	}
-
-	public void StopShoot () {
-		isShooting = false;
-		CrossHair.Instance.Reverts();
-	}
-
-	public void DoReload () {
-		Reload ();
-	}
-
-	public void DoAim () {
-		isAiming = !isAiming;
 	}
 }
 
