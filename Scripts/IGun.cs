@@ -9,4 +9,6 @@ public interface IGun {
 	void DoReload ();
 	void DoAim ();
 	void DoThrowGrenade ();
+	float GetRecoil ();
+	float GetRateOfFire ();
 }

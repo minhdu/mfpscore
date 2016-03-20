@@ -62,12 +62,12 @@ public class CameraShake : Singleton<CameraShake> {
 	}
 
 	public void ShootingShake (float amount, float time) {
-//		shootTween = LeanTween.rotateAroundLocal(gameObject, Vector3.right, amount, time)
-//			.setEase(LeanTweenType.easeShake).setLoopPingPong(-1);
+		shootTween = LeanTween.rotateAroundLocal(gameObject, Vector3.right, amount, time)
+			.setEase(LeanTweenType.easeShake).setLoopPingPong(-1);
 	}
 
 	public void StopShootingShake () {
-//		if(shootTween != null)
-//			LeanTween.cancel (shootTween.uniqueId);
+		if(shootTween != null)
+			LeanTween.cancel (shootTween.uniqueId);
 	}
 }

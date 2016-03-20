@@ -49,7 +49,7 @@ public abstract class WeaponBehaviour : MonoBehaviour, IGun {
 
 	public float shellejectdelay = 0;
 	public int ammo = 200;
-	public int currentammo= 20;
+	public int currentammo = 20;
 
 	public Transform muzzle;
 	public Transform clipShell;
@@ -216,7 +216,6 @@ public abstract class WeaponBehaviour : MonoBehaviour, IGun {
 
 	protected virtual void Shoot () {
 		if (!anim.isPlaying) {
-
 			float randomZ = Random.Range (-0.05f,-0.01f);
 			//float randomY = Random.Range (-0.1f,0.1f);
 
@@ -336,5 +335,13 @@ public abstract class WeaponBehaviour : MonoBehaviour, IGun {
 		if (!anim.isPlaying) {
 			StartCoroutine(SetThrowGrenade());
 		}
+	}
+
+	public float GetRecoil () {
+		return recoil;
+	}
+
+	public float GetRateOfFire () {
+		return fireAnim.length;
 	}
 }
