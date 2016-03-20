@@ -93,6 +93,8 @@ public abstract class WeaponBehaviour : MonoBehaviour, IGun {
 		}
 	}
 
+	public bool callBaseUpdate = true;
+
 	void Start() {
 		anim = GetComponent<Animation>();
 		trans = GetComponent<Transform> ();
@@ -104,6 +106,8 @@ public abstract class WeaponBehaviour : MonoBehaviour, IGun {
 	}
 
 	void Update () {
+		if (!callBaseUpdate)
+			return;
 		float step = speed * Time.deltaTime;
 
 		float newField = Mathf.Lerp(Camera.main.fieldOfView, nextField, Time.deltaTime * 2);
@@ -197,7 +201,8 @@ public abstract class WeaponBehaviour : MonoBehaviour, IGun {
 		if (isreloading) {
 			Reload ();
 		} else {
-			clipShell.gameObject.SetActive (true);
+			if(clipShell != null)
+				clipShell.gameObject.SetActive (true);
 
 			myAudioSource.clip = readySound;
 			myAudioSource.loop = false;
