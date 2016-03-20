@@ -118,7 +118,7 @@ public abstract class WeaponBehaviour : MonoBehaviour, IGun {
 		float Xtilt = Input.GetAxisRaw("Mouse Y") * 20f * Time.smoothDeltaTime;
 		float Ytilt = Input.GetAxisRaw("Mouse X") * 20f * Time.smoothDeltaTime;
 		#else
-		float Xtilt = FPSCamera.Instance.YInput. * 20f * Time.smoothDeltaTime;
+		float Xtilt = FPSCamera.Instance.YInput * 20f * Time.smoothDeltaTime;
 		float Ytilt = FPSCamera.Instance.XInput * 20f * Time.smoothDeltaTime;
 		#endif
 
