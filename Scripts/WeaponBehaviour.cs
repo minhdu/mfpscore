@@ -265,13 +265,16 @@ public abstract class WeaponBehaviour : MonoBehaviour, IGun {
 	}
 
 	protected virtual IEnumerator EjectShell (float waitTime) {
-		yield return new WaitForSeconds(waitTime);
-		GameObject shellInstance;
-		shellInstance = Instantiate(shell, shellPos.transform.position,shellPos.transform.rotation) as GameObject;
+		if (shell != null) {
+			yield return new WaitForSeconds (waitTime);
+			GameObject shellInstance;
+			shellInstance = Instantiate (shell, shellPos.transform.position, shellPos.transform.rotation) as GameObject;
 
-		shellInstance.GetComponent<Rigidbody>().AddRelativeForce(30,80,0);
-		shellInstance.GetComponent<Rigidbody>().AddRelativeTorque(500,20,800);
-
+			shellInstance.GetComponent<Rigidbody> ().AddRelativeForce (30, 80, 0);
+			shellInstance.GetComponent<Rigidbody> ().AddRelativeTorque (500, 20, 800);
+		} else {
+			yield break;
+		}
 	}
 
 	protected virtual IEnumerator HideShell (float waitTime) {
@@ -298,10 +301,12 @@ public abstract class WeaponBehaviour : MonoBehaviour, IGun {
 	}
 
 	protected virtual IEnumerator FlashMuzzle () {
-		muzzle.transform.localEulerAngles = new Vector3(0f,0f,Random.Range(0f,360f));
-		muzzle.gameObject.SetActive(true);
-		yield return new WaitForSeconds(0.05f);
-		muzzle.gameObject.SetActive(false);
+		if (muzzle != null) {
+			muzzle.transform.localEulerAngles = new Vector3 (0f, 0f, Random.Range (0f, 360f));
+			muzzle.gameObject.SetActive (true);
+			yield return new WaitForSeconds (0.05f);
+			muzzle.gameObject.SetActive (false);
+		}
 	}
 
 	protected virtual IEnumerator SetThrowGrenade () {
