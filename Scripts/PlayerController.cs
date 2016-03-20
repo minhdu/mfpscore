@@ -160,9 +160,9 @@ public class PlayerController : Singleton<PlayerController> {
 				currentWeapon.remainBulletInClip -=1;
 
 				// Apply slide effect
-				FPSCamera.Instance.zSmooth = currentWeapon.zSmooth;
-				FPSCamera.Instance.yPosition = currentWeapon.yPosition;
-				FPSCamera.Instance.zPosition = -0.1f;
+//				FPSCamera.Instance.zSmooth = currentWeapon.zSmooth;
+//				FPSCamera.Instance.yPosition = currentWeapon.yPosition;
+//				FPSCamera.Instance.zPosition = -0.1f;
 
 				for (int i = 0; i < currentWeapon.bulletBallNum; i++) {
 					// Sight for a collider
@@ -225,8 +225,8 @@ public class PlayerController : Singleton<PlayerController> {
 					currentWeapon.muzzleFlash.enabled = false;
 //				if (currentWeapon.projectileRender)
 //					currentWeapon.projectileRender.enabled = false;
-				FPSCamera.Instance.zPosition = 0;
-				FPSCamera.Instance.zSmooth = 8f;
+//				FPSCamera.Instance.zPosition = 0;
+//				FPSCamera.Instance.zSmooth = 8f;
 			}
 
 //			isShooting = false;

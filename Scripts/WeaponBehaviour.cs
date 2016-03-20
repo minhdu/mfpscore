@@ -215,7 +215,7 @@ public abstract class WeaponBehaviour : MonoBehaviour, IGun {
 			trans.localPosition = new Vector3(trans.localPosition.x, trans.localPosition.y ,trans.localPosition.z + randomZ);
 			camerarotate cameracontroller = recoilCamera.GetComponent<camerarotate>();
 
-			FPSCamera.Instance.DoRecoil(recoil);
+			CameraRotate.Instance.DoRecoil(recoil);
 
 			StartCoroutine(FlashMuzzle());
 

@@ -7,7 +7,6 @@ public class RPG : WeaponBehaviour {
 	public Transform rocket;
 	public Transform projectile;
 	public Transform projectilePos;
-	public Transform muzzle;
 
 	protected override void OnStart ()
 	{
@@ -39,7 +38,7 @@ public class RPG : WeaponBehaviour {
 			StartCoroutine(FlashMuzzle());
 			trans.localPosition = new Vector3(trans.localPosition.x, trans.localPosition.y, trans.localPosition.z + randomZ);
 
-			FPSCamera.Instance.DoRecoil (recoil);
+			CameraRotate.Instance.DoRecoil (recoil);
 
 			rocket.gameObject.SetActive (false);
 			Instantiate(projectile, projectilePos.transform.position,projectilePos.transform.rotation);

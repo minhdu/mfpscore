@@ -25,8 +25,6 @@ public class FPSCamera : Singleton<FPSCamera> {
 
 	float xSensitive = 2000f;
 	float ySensitive = 900F;
-	float yRotation = 0.0f;
-	float xRotation = 0.0f;
 	float rotateCoef = 1f;
 	float minYAngle = -60F;
 	float maxYAngle = 60F;
@@ -40,10 +38,6 @@ public class FPSCamera : Singleton<FPSCamera> {
 	public Transform playerTrans;
 
 	public float zSmooth = 10;
-	public float xPosition = 0;
-	public float yPosition = 0;
-	public float zPosition = 0;
-	public float yCoef = 0;
 
 	public float rotateSensitive = 1.5f;
 
@@ -129,9 +123,5 @@ public class FPSCamera : Singleton<FPSCamera> {
 
 		xInput = (slideInput.x  * ((xSensitive*rotateSensitive) * 0.01f)) / ScreenHelper.DPI;
 		yInput = (slideInput.y * ((ySensitive*rotateSensitive) * 0.01f)) / ScreenHelper.DPI;
-	}
-
-	public void DoRecoil(float recoil) {
-		yRotation += recoil * Time.deltaTime * 20f;
 	}
 }

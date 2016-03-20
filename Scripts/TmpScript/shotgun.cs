@@ -52,7 +52,7 @@ public class shotgun : WeaponBehaviour {
 			//float randomY = Random.Range (-0.1f,0.1f);
 
 			trans.localPosition = new Vector3(trans.localPosition.x, trans.localPosition.y, trans.localPosition.z + randomZ);
-			FPSCamera.Instance.DoRecoil(recoil);
+			CameraRotate.Instance.DoRecoil(recoil);
 			StartCoroutine(setfire());
 
 			if (currentammo <= 0) {

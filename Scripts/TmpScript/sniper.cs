@@ -36,7 +36,7 @@ public class sniper : WeaponBehaviour {
 			//float randomY = Random.Range (-0.1f,0.1f);
 			
 			trans.localPosition = new Vector3(trans.localPosition.x, trans.localPosition.y, trans.localPosition.z + randomZ);
-			FPSCamera.Instance.DoRecoil (recoil);
+			CameraRotate.Instance.DoRecoil (recoil);
 			anim.Play (fireAnim.name);
 			currentammo -= 1;
 			
@@ -63,7 +63,7 @@ public class sniper : WeaponBehaviour {
 			
 			transform.localPosition = new Vector3(trans.localPosition.x, trans.localPosition.y, trans.localPosition.z + randomZ);
 
-			FPSCamera.Instance.DoRecoil (recoil);
+			CameraRotate.Instance.DoRecoil (recoil);
 
 			fireAudioSource.clip = fireSound;
 			fireAudioSource.pitch = 0.9f + 0.1f * Random.value;

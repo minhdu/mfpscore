@@ -138,7 +138,7 @@ public class machinegun : WeaponBehaviour {
 			
 			trans.localPosition = new Vector3(trans.localPosition.x, trans.localPosition.y, trans.localPosition.z + randomZ);
 			StartCoroutine(FlashMuzzle());
-			FPSCamera.Instance.DoRecoil (recoil);
+			CameraRotate.Instance.DoRecoil (recoil);
 			raycastfire weaponfirer = rayfirer.GetComponent<raycastfire> ();
 			weaponfirer.SendMessage ("fire", SendMessageOptions.DontRequireReceiver);
 			

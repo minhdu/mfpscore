@@ -36,7 +36,7 @@ public class slugger : WeaponBehaviour {
 
 			trans.localPosition = new Vector3(trans.localPosition.x, trans.localPosition.y, trans.localPosition.z + randomZ);
 
-			FPSCamera.Instance.DoRecoil (recoil);
+			CameraRotate.Instance.DoRecoil (recoil);
 
 			StartCoroutine(FlashMuzzle());
 

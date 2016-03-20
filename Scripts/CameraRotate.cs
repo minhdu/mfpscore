@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class CameraRotate : MonoBehaviour {
+public class CameraRotate : Singleton<CameraRotate> {
 	
 	float sensitivityX = 6.0f;
 	float sensitivityY = 6.0f;
@@ -11,6 +11,8 @@ public class CameraRotate : MonoBehaviour {
 	float rotationY = 0f;
 	public float speed = 1.0f;
 	public float smooth = 0.5f;
+	public float minimumY = -70f;
+	public float maximumY  = 70f;
 
 	Transform trans;
 
@@ -32,13 +34,17 @@ public class CameraRotate : MonoBehaviour {
 		}
 
 #if UNITY_EDITOR
-		rotationX = Input.GetAxis ("Mouse X") * sensitivityX * smooth * (Time.deltaTime * speed);
-		rotationY = Input.GetAxis ("Mouse Y") * sensitivityY * smooth * (Time.deltaTime * speed);
+		rotationX = Input.GetAxis ("Mouse X") * sensitivityX * smooth * Time.deltaTime * speed;
+		rotationY += Input.GetAxis ("Mouse Y") * sensitivityY * smooth * Time.deltaTime * speed;
 #else
 		rotationX = FPSCamera.Instance.XInput * sensitivityX * smooth * Time.deltaTime * speed;
-		rotationY = FPSCamera.Instance.YInput * sensitivityY * smooth * Time.deltaTime * speed;
+		rotationY += FPSCamera.Instance.YInput * sensitivityY * smooth * Time.deltaTime * speed;
 #endif
+		rotationY = Mathf.Clamp (rotationY, minimumY, maximumY);
+		trans.localEulerAngles = new Vector3(-rotationY, trans.localEulerAngles.y + rotationX, 0);
+	}
 
-		trans.localEulerAngles = new Vector3(trans.localEulerAngles.x - rotationY, trans.localEulerAngles.y + rotationX, 0);
+	public void DoRecoil(float recoil) {
+		rotationY += recoil * Time.deltaTime * 20f;
 	}
 }
