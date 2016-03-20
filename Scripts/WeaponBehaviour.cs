@@ -113,8 +113,14 @@ public abstract class WeaponBehaviour : MonoBehaviour, IGun {
 		float newfieldweapon = Mathf.Lerp(weaponcamera.fieldOfView, weaponnextfield, Time.deltaTime * 2);
 		Camera.main.fieldOfView = newField;
 		weaponcamera.fieldOfView = newfieldweapon;
-		//float Xtilt = Input.GetAxisRaw("Mouse Y") * 20f * Time.smoothDeltaTime;
-		//float Ytilt = Input.GetAxisRaw("Mouse X") * 20f * Time.smoothDeltaTime;
+
+		#if UNITY_EDITOR
+		float Xtilt = Input.GetAxisRaw("Mouse Y") * 20f * Time.smoothDeltaTime;
+		float Ytilt = Input.GetAxisRaw("Mouse X") * 20f * Time.smoothDeltaTime;
+		#else
+		float Xtilt = FPSCamera.Instance.YInput. * 20f * Time.smoothDeltaTime;
+		float Ytilt = FPSCamera.Instance.XInput * 20f * Time.smoothDeltaTime;
+		#endif
 
 		if (retract) {
 			canfire = false;
@@ -128,20 +134,7 @@ public abstract class WeaponBehaviour : MonoBehaviour, IGun {
 		inventory.currentammo = currentammo;
 		inventory.totalammo = ammo;
 		canfire = true;
-		//		if (playercontrol.running)
-		//		{
-		//			canfire = false;
-		//
-		//			wantedrotation = new Vector3(Xtilt + runXrotation,Ytilt,0f);
-		//
-		//		}
-		//		else
-		//		{
-		//			canfire = true;
-		//
-		//			wantedrotation = new Vector3(Xtilt,Ytilt,0f);
-		//
-		//		}
+		wantedrotation = new Vector3(Xtilt,Ytilt,0f);
 
 		trans.localRotation = Quaternion.Lerp(trans.localRotation,Quaternion.Euler(wantedrotation),5f * Time.deltaTime);
 
