@@ -95,14 +95,13 @@ public abstract class WeaponBehaviour : MonoBehaviour, IGun {
 
 	public bool callBaseUpdate = true;
 
-	void Start() {
+	void Start () {
 		anim = GetComponent<Animation>();
 		trans = GetComponent<Transform> ();
 		nextField = normalFOV ;
 		weaponnextfield = weaponnormalFOV;
 		anim.Stop();
 		OnStart();
-
 	}
 
 	void Update () {
@@ -277,9 +276,13 @@ public abstract class WeaponBehaviour : MonoBehaviour, IGun {
 	}
 
 	protected virtual IEnumerator HideShell (float waitTime) {
-		clipShell.gameObject.SetActive (false);
-		yield return new WaitForSeconds(waitTime);
-		clipShell.gameObject.SetActive (true);
+		if (clipShell != null) {
+			clipShell.gameObject.SetActive (false);
+			yield return new WaitForSeconds (waitTime);
+			clipShell.gameObject.SetActive (true);
+		} else {
+			yield break;
+		}
 	}
 
 	protected virtual IEnumerator SetReload (float waitTime) {
