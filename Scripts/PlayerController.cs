@@ -402,7 +402,7 @@ public class PlayerController : Singleton<PlayerController> {
 		{
 			isShooting = false;
 			isAiming = false;
-			CameraShake.Instance.StopShootingShake ();
+			CameraShake.Instance.StopAllShake ();
 			if (currentWeapon.sniperScope != null) {
 				currentWeapon.sniperScope.SetActive (false);
 				currentWeapon.weaponPrefab.SetActive (true);
@@ -420,7 +420,7 @@ public class PlayerController : Singleton<PlayerController> {
 			} else {
 				CrossHair.Instance.Reverts();
 				CameraShake.Instance.Idle ();
-				CameraShake.Instance.StopShootingShake ();
+				CameraShake.Instance.StopAllShake ();
 				if(currentWeapon.muzzleFlash.enabled)
 					currentWeapon.muzzleFlash.enabled = false;
 			}

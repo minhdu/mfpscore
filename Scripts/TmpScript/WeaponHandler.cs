@@ -90,6 +90,7 @@ public class WeaponHandler : Singleton<WeaponHandler> {
 
 	public void DoShoot () {
 		if (currentWeapon != null) {
+			CameraShake.Instance.StopAllShake ();
 			currentWeapon.DoShoot ();
 			CameraShake.Instance.ShootingShake (CurrentWeapon.GetRecoil()/5, CurrentWeapon.GetRateOfFire());
 		}
@@ -98,7 +99,7 @@ public class WeaponHandler : Singleton<WeaponHandler> {
 	public void StopShoot () {
 		if (currentWeapon != null) {
 			currentWeapon.StopShoot ();
-			CameraShake.Instance.StopShootingShake ();
+			CameraShake.Instance.StopAllShake ();
 		}
 	}
 

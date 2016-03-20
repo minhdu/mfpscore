@@ -12,10 +12,12 @@ public class CameraShake : Singleton<CameraShake> {
 	Transform mTransform;
 	Vector3 idleVector;
 	bool isIdle = false;
+	Vector3 originalPosition;
 
 	void Awake () {
 		mTransform = GetComponent<Transform> ();
 		idleVector = new Vector3 (mTransform.localPosition.x, mTransform.localPosition.y + 0.05f, mTransform.localPosition.z);
+		originalPosition = mTransform.localPosition;
 	}
 
 	public void Idle () {
@@ -61,13 +63,14 @@ public class CameraShake : Singleton<CameraShake> {
 //			.setRepeat(-1);
 	}
 
+
 	public void ShootingShake (float amount, float time) {
-		shootTween = LeanTween.rotateAroundLocal(gameObject, Vector3.right, amount, time)
-			.setEase(LeanTweenType.easeShake).setLoopPingPong(-1);
+//		LeanTween.moveLocal(gameObject, Vector3.forward*amount, time)
+//			.setEase(LeanTweenType.easeShake).setLoopPingPong(-1);
 	}
 
-	public void StopShootingShake () {
-		if(shootTween != null)
-			LeanTween.cancel (shootTween.uniqueId);
+	public void StopAllShake () {
+//		LeanTween.cancel (gameObject);
+//		mTransform.localPosition = originalPosition;
 	}
 }
