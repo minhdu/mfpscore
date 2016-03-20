@@ -29,9 +29,6 @@ public class revolver : WeaponBehaviour {
 		Camera.main.fieldOfView = newField;
 		weaponcamera.fieldOfView = newfieldweapon;
 
-		if (Input.GetButton("ThrowGrenade") && !GetComponent<Animation>().isPlaying) {
-			StartCoroutine(SetThrowGrenade());
-		}
 		if (retract) {
 			canfire = false;
 			canaim = false;
