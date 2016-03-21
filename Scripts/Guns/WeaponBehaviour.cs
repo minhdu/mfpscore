@@ -183,11 +183,11 @@ public abstract class WeaponBehaviour : MonoBehaviour, IGun {
 
 		anim = GetComponent<Animation> ();
 
-		raycastfire.Instance.inaccuracy = inaccuracy;
-		raycastfire.Instance.damage = damage;
-		raycastfire.Instance.range = range;
-		raycastfire.Instance.force = force;
-		raycastfire.Instance.projectilecount = projectilecount;
+		RaycastFire.Instance.inaccuracy = inaccuracy;
+		RaycastFire.Instance.damage = damage;
+		RaycastFire.Instance.range = range;
+		RaycastFire.Instance.force = force;
+		RaycastFire.Instance.projectilecount = projectilecount;
 
 		anim.Stop();
 		if (isreloading) {
@@ -219,7 +219,7 @@ public abstract class WeaponBehaviour : MonoBehaviour, IGun {
 
 			StartCoroutine(FlashMuzzle());
 
-			raycastfire.Instance.SendMessage("fire",SendMessageOptions.DontRequireReceiver);
+			RaycastFire.Instance.SendMessage("fire",SendMessageOptions.DontRequireReceiver);
 
 			fireAudioSource.clip = fireSound;
 			fireAudioSource.pitch = 0.9f + 0.1f *Random.value;

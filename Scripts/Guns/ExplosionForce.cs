@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class explosionForce : MonoBehaviour {
+public class ExplosionForce : MonoBehaviour {
 	public float radius = 5.0f;
 	public float power = 200.0f;
 	public float waitTime = 5.0f;

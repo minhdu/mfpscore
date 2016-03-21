@@ -2,7 +2,7 @@
 using System.Collections;
 
 
-public class shotgun : WeaponBehaviour {
+public class Shotgun : WeaponBehaviour {
 
 	public Transform handshell;
 	
@@ -23,7 +23,7 @@ public class shotgun : WeaponBehaviour {
 
 		anim = GetComponent<Animation> ();
 
-		raycastfire weaponfirer = rayfirer.GetComponent<raycastfire>();
+		RaycastFire weaponfirer = rayfirer.GetComponent<RaycastFire>();
 		weaponfirer.inaccuracy = inaccuracy;
 		weaponfirer.damage = damage;
 		weaponfirer.range = range;
@@ -120,7 +120,7 @@ public class shotgun : WeaponBehaviour {
 	IEnumerator setfire() {
 		if (currentammo > 1) {
 			StartCoroutine(FlashMuzzle());
-			raycastfire weaponfirer = rayfirer.GetComponent<raycastfire> ();
+			RaycastFire weaponfirer = rayfirer.GetComponent<RaycastFire> ();
 			weaponfirer.SendMessage ("fire", SendMessageOptions.DontRequireReceiver);
 			
 			fireAudioSource.clip = fireSound;
@@ -146,7 +146,7 @@ public class shotgun : WeaponBehaviour {
 				Reload ();
 			}
 			StartCoroutine(FlashMuzzle());
-			raycastfire weaponfirer = rayfirer.GetComponent<raycastfire> ();
+			RaycastFire weaponfirer = rayfirer.GetComponent<RaycastFire> ();
 			weaponfirer.SendMessage ("fire", SendMessageOptions.DontRequireReceiver);
 			
 			fireAudioSource.clip = fireSound;

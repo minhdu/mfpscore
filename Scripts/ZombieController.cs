@@ -164,7 +164,7 @@ public class ZombieController : CoroutinableMono {
 		float attackTime = PlayAnimation (attack, WrapMode.Once, true);
 		yield return new WaitForSeconds (attackTime * 0.75f);
 		float damage = attack == ZombieAnim.ATTACK ? zombie.normalDamage : zombie.heavyDamage;
-		PlayerController.Instance.Hurt (damage);
+		//PlayerController.Instance.Hurt (damage);
 	}
 
 	IEnumerator Rest () {

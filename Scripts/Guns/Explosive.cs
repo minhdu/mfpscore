@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class explosive : MonoBehaviour {
+public class Explosive : MonoBehaviour {
 	public float hitpoints = 100f;
 	public Transform spawnobject;
 	public GameObject explosion;

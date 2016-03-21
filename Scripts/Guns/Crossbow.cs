@@ -2,7 +2,7 @@
 using System.Collections;
 
 
-public class crossbow : WeaponBehaviour {
+public class Crossbow : WeaponBehaviour {
 	
 	public Transform arrow;
 	public Transform projectile;

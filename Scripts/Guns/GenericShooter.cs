@@ -2,7 +2,7 @@
 using System.Collections;
 
 
-public class genericShooter : WeaponBehaviour {
+public class GenericShooter : WeaponBehaviour {
 	
 }
 

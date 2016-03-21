@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class rocket : MonoBehaviour {
+public class Rocket : MonoBehaviour {
 	public float speed = 100f;
 	public GameObject explosion;
 	public float waitTime = 5.0f;

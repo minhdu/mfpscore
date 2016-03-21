@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class raycastfire : Singleton<raycastfire> {
+public class RaycastFire : Singleton<RaycastFire> {
 
 	public float force = 500f;
 	public float damage = 50f;

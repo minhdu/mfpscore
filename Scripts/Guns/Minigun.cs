@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class minigun : WeaponBehaviour {
+public class Minigun : WeaponBehaviour {
 
 	public AudioSource servoAudioSource;
 	public AudioClip servosound;
@@ -114,11 +114,11 @@ public class minigun : WeaponBehaviour {
 
 		anim = GetComponent<Animation> ();
 
-		raycastfire.Instance.inaccuracy = inaccuracy;
-		raycastfire.Instance.damage = damage;
-		raycastfire.Instance.range = range;
-		raycastfire.Instance.force = force;
-		raycastfire.Instance.projectilecount = projectilecount;
+		RaycastFire.Instance.inaccuracy = inaccuracy;
+		RaycastFire.Instance.damage = damage;
+		RaycastFire.Instance.range = range;
+		RaycastFire.Instance.force = force;
+		RaycastFire.Instance.projectilecount = projectilecount;
 
 		anim.Stop();
 		if (isreloading) {

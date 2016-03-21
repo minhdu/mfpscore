@@ -2,7 +2,7 @@
 using System.Collections;
 
 
-public class flamethrower : WeaponBehaviour {
+public class FlameThrower : WeaponBehaviour {
 	
 	public Transform flames;
 

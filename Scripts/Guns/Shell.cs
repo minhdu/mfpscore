@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class shell : MonoBehaviour {
+public class Shell : MonoBehaviour {
 	public float  waitTime = 2f;
 	public AudioSource myAudioSource;
 	public AudioClip[] shellsounds ;
@@ -15,7 +15,7 @@ public class shell : MonoBehaviour {
 	void Update () {
 	
 	}
-	void OnCollisionEnter( Collision collision) 
+	void OnCollisionEnter(Collision collision) 
 	{
 		if (!myAudioSource.isPlaying)
 		{

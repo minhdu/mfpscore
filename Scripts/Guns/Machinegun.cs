@@ -2,7 +2,7 @@
 using System.Collections;
 
 
-public class machinegun : WeaponBehaviour {
+public class Machinegun : WeaponBehaviour {
 	
 	public Transform bullet1;
 	public Transform bullet2;
@@ -139,7 +139,7 @@ public class machinegun : WeaponBehaviour {
 			trans.localPosition = new Vector3(trans.localPosition.x, trans.localPosition.y, trans.localPosition.z + randomZ);
 			StartCoroutine(FlashMuzzle());
 			CameraRotate.Instance.DoRecoil (recoil);
-			raycastfire weaponfirer = rayfirer.GetComponent<raycastfire> ();
+			RaycastFire weaponfirer = rayfirer.GetComponent<RaycastFire> ();
 			weaponfirer.SendMessage ("fire", SendMessageOptions.DontRequireReceiver);
 			
 			fireAudioSource.clip = fireSound;

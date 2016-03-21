@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class flamedamage : MonoBehaviour {
+public class FlameDamage : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {

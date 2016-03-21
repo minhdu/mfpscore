@@ -2,7 +2,7 @@
 using System.Collections;
 
 
-public class revolver : WeaponBehaviour {
+public class Revolver : WeaponBehaviour {
 	
 	public AudioClip toreloadSound;
 	public AudioClip reloadonceSound;
@@ -155,7 +155,7 @@ public class revolver : WeaponBehaviour {
 
 			StartCoroutine(FlashMuzzle());
 
-			raycastfire.Instance.SendMessage("fire",SendMessageOptions.DontRequireReceiver);
+			RaycastFire.Instance.SendMessage("fire",SendMessageOptions.DontRequireReceiver);
 
 			fireAudioSource.clip = fireSound;
 			fireAudioSource.pitch = 0.9f + 0.1f *Random.value;

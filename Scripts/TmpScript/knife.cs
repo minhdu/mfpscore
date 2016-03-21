@@ -112,7 +112,7 @@ public class knife : MonoBehaviour {
 
 
 		GetComponent<Animation>().Stop();
-		raycastfire weaponfirer = rayfirer.GetComponent<raycastfire>();
+		RaycastFire weaponfirer = rayfirer.GetComponent<RaycastFire>();
 		weaponfirer.inaccuracy = inaccuracy;
 		weaponfirer.damage = damage;
 		weaponfirer.range = range;
@@ -182,7 +182,7 @@ public class knife : MonoBehaviour {
 	IEnumerator firedelayed(float waitTime)
 	{
 		yield return new WaitForSeconds (waitTime);
-		raycastfire weaponfirer = rayfirer.GetComponent<raycastfire>();
+		RaycastFire weaponfirer = rayfirer.GetComponent<RaycastFire>();
 		weaponfirer.SendMessage("fireMelee",SendMessageOptions.DontRequireReceiver);
 	}
 	void doswitch()

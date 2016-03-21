@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class grenade : MonoBehaviour {
+public class Grenade : MonoBehaviour {
 	public Transform explosion;
 
 	public float waitTime = 2.0f;

@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class throwgrenade : MonoBehaviour {
+public class ThrowGrenade : MonoBehaviour {
 	public float throwforce = 200.0f;
 	public float ejectdelay = 1.0f;
 	public GameObject projectile;

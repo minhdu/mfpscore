@@ -2,7 +2,7 @@
 using System.Collections;
 
 
-public class sniper : WeaponBehaviour {
+public class Sniper : WeaponBehaviour {
 	
 	public AnimationClip ejectshellAnim;
 
@@ -26,7 +26,7 @@ public class sniper : WeaponBehaviour {
 	IEnumerator SetFire() {
 		if (currentammo > 1) {
 			StartCoroutine(FlashMuzzle());
-			raycastfire weaponfirer = rayfirer.GetComponent<raycastfire> ();
+			RaycastFire weaponfirer = rayfirer.GetComponent<RaycastFire> ();
 			weaponfirer.SendMessage ("fire", SendMessageOptions.DontRequireReceiver);
 			
 			fireAudioSource.clip = fireSound;
@@ -56,7 +56,7 @@ public class sniper : WeaponBehaviour {
 				Reload ();
 			}
 			StartCoroutine(FlashMuzzle());
-			raycastfire weaponfirer = rayfirer.GetComponent<raycastfire> ();
+			RaycastFire weaponfirer = rayfirer.GetComponent<RaycastFire> ();
 			weaponfirer.SendMessage ("fire", SendMessageOptions.DontRequireReceiver);
 			float randomZ = Random.Range (-0.05f,-0.01f);
 			//float randomY = Random.Range (-0.1f,0.1f);
