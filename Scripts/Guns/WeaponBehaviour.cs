@@ -219,7 +219,7 @@ public abstract class WeaponBehaviour : MonoBehaviour, IGun {
 
 			StartCoroutine(FlashMuzzle());
 
-			RaycastFire.Instance.SendMessage("fire",SendMessageOptions.DontRequireReceiver);
+			RaycastFire.Instance.Fire();
 
 			fireAudioSource.clip = fireSound;
 			fireAudioSource.pitch = 0.9f + 0.1f *Random.value;

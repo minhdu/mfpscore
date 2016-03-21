@@ -7,7 +7,17 @@ public class CoroutinableMono : MonoBehaviour {
 		StartCoroutine(RunCoroutineThenCallback (coroutine, callback));
 	}
 
+	public void RunCoroutine (string coroutine, Action callback) {
+		StartCoroutine(RunCoroutineThenCallback (coroutine, callback));
+	}
+
 	IEnumerator RunCoroutineThenCallback (IEnumerator coroutine, Action callback) {
+		yield return StartCoroutine (coroutine);
+		if (callback != null)
+			callback ();
+	}
+
+	IEnumerator RunCoroutineThenCallback (string coroutine, Action callback) {
 		yield return StartCoroutine (coroutine);
 		if (callback != null)
 			callback ();

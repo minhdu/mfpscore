@@ -64,15 +64,17 @@ public class RaycastFire : Singleton<RaycastFire> {
 			}
 		}
 	}
-	void fire () 
+
+	public void Fire () 
 	{
-		
+
 		for(int i = 0; i < projectilecount; i++)
 		{
-			firebullet();
+			FireBullet();
 		}
 	}
-	void firebullet()
+
+	void FireBullet()
 	{
 
 		Vector3 fwrd = transform.forward;
@@ -87,9 +89,9 @@ public class RaycastFire : Singleton<RaycastFire> {
 		Ray ray = new Ray (transform.position, wantedvector);
 		RaycastHit hit = new RaycastHit();
 		
-		if (Physics.Raycast(ray,out hit, range,mask))
+		if (Physics.Raycast(ray, out hit, range, mask))
 		{   
-			
+			Debug.Log (hit.collider.name);
 			if(hit.rigidbody) hit.rigidbody.AddForceAtPosition (force * fwrd , hit.point);
 			hit.transform.SendMessageUpwards ("Damage",damage, SendMessageOptions.DontRequireReceiver);
 			GameObject decal;

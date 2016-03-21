@@ -120,4 +120,23 @@ public class WeaponHandler : Singleton<WeaponHandler> {
 			currentWeapon.DoThrowGrenade ();
 		}
 	}
+
+	#if UNITY_EDITOR
+	void Update () {
+		if (Input.GetMouseButtonDown (0)) {
+			DoShoot ();
+		} else if (Input.GetMouseButtonUp (0)) {
+			StopShoot ();
+		}
+		if (Input.GetMouseButtonDown (1)) {
+			DoAim ();
+		}
+		if (Input.GetKeyDown (KeyCode.R)) {
+			DoReload ();
+		}
+		if (Input.GetKeyDown (KeyCode.Q)) {
+			NextWeapon ();
+		}
+	}
+	#endif
 }

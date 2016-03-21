@@ -26,8 +26,7 @@ public class Sniper : WeaponBehaviour {
 	IEnumerator SetFire() {
 		if (currentammo > 1) {
 			StartCoroutine(FlashMuzzle());
-			RaycastFire weaponfirer = rayfirer.GetComponent<RaycastFire> ();
-			weaponfirer.SendMessage ("fire", SendMessageOptions.DontRequireReceiver);
+			RaycastFire.Instance.Fire ();
 			
 			fireAudioSource.clip = fireSound;
 			fireAudioSource.pitch = 0.9f + 0.1f * Random.value;
@@ -56,8 +55,7 @@ public class Sniper : WeaponBehaviour {
 				Reload ();
 			}
 			StartCoroutine(FlashMuzzle());
-			RaycastFire weaponfirer = rayfirer.GetComponent<RaycastFire> ();
-			weaponfirer.SendMessage ("fire", SendMessageOptions.DontRequireReceiver);
+			RaycastFire.Instance.Fire ();
 			float randomZ = Random.Range (-0.05f,-0.01f);
 			//float randomY = Random.Range (-0.1f,0.1f);
 			

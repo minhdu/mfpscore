@@ -23,12 +23,11 @@ public class Shotgun : WeaponBehaviour {
 
 		anim = GetComponent<Animation> ();
 
-		RaycastFire weaponfirer = rayfirer.GetComponent<RaycastFire>();
-		weaponfirer.inaccuracy = inaccuracy;
-		weaponfirer.damage = damage;
-		weaponfirer.range = range;
-		weaponfirer.force = force;
-		weaponfirer.projectilecount = projectilecount;
+		RaycastFire.Instance.inaccuracy = inaccuracy;
+		RaycastFire.Instance.damage = damage;
+		RaycastFire.Instance.range = range;
+		RaycastFire.Instance.force = force;
+		RaycastFire.Instance.projectilecount = projectilecount;
 		
 		GetComponent<Animation>().Stop();
 		if (isreloading) {
@@ -120,9 +119,9 @@ public class Shotgun : WeaponBehaviour {
 	IEnumerator setfire() {
 		if (currentammo > 1) {
 			StartCoroutine(FlashMuzzle());
-			RaycastFire weaponfirer = rayfirer.GetComponent<RaycastFire> ();
-			weaponfirer.SendMessage ("fire", SendMessageOptions.DontRequireReceiver);
-			
+				
+			RaycastFire.Instance.Fire ();
+
 			fireAudioSource.clip = fireSound;
 			fireAudioSource.pitch = 0.9f + 0.1f * Random.value;
 			fireAudioSource.Play ();

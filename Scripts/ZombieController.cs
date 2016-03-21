@@ -18,7 +18,7 @@ public class ZombieController : CoroutinableMono {
 	public Zombie zombie;
 	public Animation anim;
 	NavMeshAgent navAgent;
-	Collider collider;
+	public Collider[] colliders;
 
 	bool isInited = false;
 	bool isReachWaypoint = false;
@@ -26,6 +26,8 @@ public class ZombieController : CoroutinableMono {
 	int curWaypoint = 0;
 	float nextAttackTime;
 	float nextRestTime;
+
+	bool isStunning;
 
 	public AnimationClip[] awakeClips;
 	public AnimationClip[] idleClips;
@@ -40,7 +42,7 @@ public class ZombieController : CoroutinableMono {
 
 	public void Init (Vector3 position, Vector3 rotation, params Waypoint[] waypoints) {
 		navAgent = GetComponent<NavMeshAgent> ();
-		collider = GetComponent<Collider> ();
+		colliders = GetComponentsInChildren<Collider> ();
 		wayPoints = waypoints;
 		curWaypoint = -1;
 
@@ -63,15 +65,15 @@ public class ZombieController : CoroutinableMono {
 		if (!isReachWaypoint)
 			isReachWaypoint = CheckIsReachWaypoint ();
 		
-		if (isReachWaypoint) {
+		if (isReachWaypoint && zombie.hitPoint > 0) {
 			if (wayPoints [curWaypoint].isPlayer) {
 				if (Time.time > nextAttackTime + zombie.attackRate) {
-					RunCoroutine (Attack (), Idle);
+					RunCoroutine ("Attack", Idle);
 					nextAttackTime = Time.time;
 				}
 			} else {
 				if (Time.time > nextRestTime + zombie.restTime) {
-					StartCoroutine (Rest ());
+					StartCoroutine ("Rest");
 					nextRestTime = Time.time;
 				}
 			}
@@ -80,23 +82,34 @@ public class ZombieController : CoroutinableMono {
 
 	public void SetNextTarget () {
 		curWaypoint++;
-		navAgent.SetDestination (wayPoints[curWaypoint].Position);
-		StartCoroutine (Move ());
+		SetMove ();
+		StartCoroutine ("Move");
 		isReachWaypoint = false;
 	}
 
+	public void SetMove () {
+		if (zombie.hitPoint <= 0)
+			return;
+		navAgent.SetDestination (wayPoints[curWaypoint].Position);
+		navAgent.Resume ();
+		StartCoroutine ("Move");
+	}
+
 	public void Hurt (float damage) {
+		isStunning = true;
+		navAgent.Stop ();
 		zombie.hitPoint -= damage;
 		if (zombie.hitPoint <= 0) {
-			collider.enabled = false;
+			for (int i = 0; i < colliders.Length; i++) {
+				colliders[i].enabled = false;
+			}
 			StartCoroutine (Dead ());
 		} else {
-			PlayAnimation (ZombieAnim.HURT);
+			Invoke ("SetMove", PlayAnimation (ZombieAnim.HURT));
 		}
 	}
 
 	float PlayAnimation (ZombieAnim clip, WrapMode wrapMode = WrapMode.Once, bool crossFade=false, float fadeLenght=0.25f, bool playQueue = false) {
-		Debug.LogError (clip);
 		AnimationClip[] clips = animClips [clip];
 		AnimationClip animClip = clips [Random.Range (0, clips.Length)];
 		if (wrapMode == WrapMode.Loop && anim.IsPlaying (animClip.name))
@@ -146,11 +159,15 @@ public class ZombieController : CoroutinableMono {
 		bool isRndChangeMoveState = stopMove.ChooseByRandom();
 		if (isRndChangeMoveState) {
 			yield return new WaitForSeconds (Random.Range(2f, 5f));
-			StartCoroutine (Move ());
+			StartCoroutine ("Move");
 		}
 	}
 
 	IEnumerator Dead () {
+		StopCoroutine ("Move");
+		StopCoroutine ("Rest");
+		StopCoroutine ("Attack");
+		navAgent.Stop ();
 		yield return new WaitForSeconds(PlayAnimation (ZombieAnim.DEAD, WrapMode.Once, true, 0.25f));
 		Destroy (gameObject);
 	}
@@ -195,5 +212,22 @@ public class ZombieController : CoroutinableMono {
 		}
 
 		return false;
+	}
+
+	void Damage (float damage) 
+	{
+
+//		if (!myaudio.isPlaying && hitpoints >= 0)
+//		{
+//
+//			int n = Random.Range(1,hurtSounds.Length);
+//			myaudio.clip = hurtSounds[n];
+//			myaudio.pitch = 0.9f + 0.1f *Random.value;
+//			myaudio.Play();
+//			hurtSounds[n] = hurtSounds[0];
+//			hurtSounds[0] = myaudio.clip;
+//		}
+//		hitpoints = hitpoints - damage;
+		Hurt(damage);
 	}
 }
