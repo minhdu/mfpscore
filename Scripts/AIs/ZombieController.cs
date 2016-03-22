@@ -102,6 +102,7 @@ public class ZombieController : CoroutinableMono, IEventListener {
 	}
 
 	public void Hurt (float damage) {
+		navAgent.acceleration = 90;
 		navAgent.Stop ();
 		zombie.hitPoint -= damage;
 		if (zombie.hitPoint <= 0) {
@@ -128,6 +129,7 @@ public class ZombieController : CoroutinableMono, IEventListener {
 		
 		ChangeState (moveTypes.ChooseByRandom ());
 		navAgent.SetDestination (wayPoints[curWaypoint].Position);
+		navAgent.acceleration = 8;
 		navAgent.Resume ();
 	}
 	
@@ -217,7 +219,6 @@ public class ZombieController : CoroutinableMono, IEventListener {
 	}
 
 	IEnumerator OnDieEnter () {
-		navAgent.Stop ();
 		yield return new WaitForSeconds(PlayAnimation (ZombieAnim.DEAD, WrapMode.Once, true, 0.25f));
 		Destroy (gameObject);
 	}
