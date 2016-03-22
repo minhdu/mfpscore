@@ -280,6 +280,7 @@ public abstract class WeaponBehaviour : MonoBehaviour, IGun {
 	}
 
 	protected virtual IEnumerator SetReload (float waitTime) {
+		CrossHair.Instance.Show (false);
 		WeaponHandler selector = player.GetComponent<WeaponHandler>();
 		selector.canswitch = false;
 
@@ -290,6 +291,9 @@ public abstract class WeaponBehaviour : MonoBehaviour, IGun {
 		isreloading = false;
 		canaim = true;
 		selector.canswitch = true;
+
+		if(!isAiming)
+			CrossHair.Instance.Show (true);
 	}
 
 	protected virtual IEnumerator FlashMuzzle () {
@@ -326,6 +330,7 @@ public abstract class WeaponBehaviour : MonoBehaviour, IGun {
 
 	public void DoAim () {
 		isAiming = !isAiming;
+		CrossHair.Instance.Show (!isAiming);
 	}
 
 	public void DoThrowGrenade () {
