@@ -31,6 +31,7 @@ public class ZombieWave : MonoBehaviour {
 			return;
 		}
 		StartCoroutine(Spawn());
+		active = true;
 	}
 
 	void Update () {
