@@ -1,15 +1,15 @@
 ﻿using UnityEngine;
-using System.Collections;
 
 public class WaveGame : MonoBehaviour {
+	public ZombieWave[] wavesData;
+	int curWaveIndex = -1;
+	ZombieWave curWave;
 
-	// Use this for initialization
-	void Start () {
-	
-	}
-	
-	// Update is called once per frame
-	void Update () {
-	
+	void FixedUpdate () {
+		if ((curWave == null || (curWave != null && curWave.IsDone)) && curWaveIndex < wavesData.Length-1) {
+			curWaveIndex++;
+			curWave = wavesData[curWaveIndex];
+			curWave.Active();
+		}
 	}
 }

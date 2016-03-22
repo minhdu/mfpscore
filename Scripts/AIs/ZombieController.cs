@@ -40,7 +40,15 @@ public class ZombieController : CoroutinableMono {
 
 	Dictionary<ZombieAnim, AnimationClip[]> animClips = new Dictionary<ZombieAnim, AnimationClip[]> ();
 
-	public void Init (Vector3 position, Vector3 rotation, params Waypoint[] waypoints) {
+	void OnEnable () {
+		Init (FindPlayer());
+	}
+
+	public Waypoint FindPlayer () {
+		return FPSCamera.Instance.GetComponentInParent<Waypoint> ();
+	}
+
+	public void Init (params Waypoint[] waypoints) {
 		navAgent = GetComponent<NavMeshAgent> ();
 		colliders = GetComponentsInChildren<Collider> ();
 		wayPoints = waypoints;
@@ -192,11 +200,6 @@ public class ZombieController : CoroutinableMono {
 
 	void Idle () {
 		PlayAnimation (ZombieAnim.IDLE, WrapMode.Loop, true, 0.25f);
-	}
-
-	void Start () {
-		Waypoint wp = FindObjectOfType<Waypoint> ();
-		Init (wp.Position, wp.transform.rotation.eulerAngles, wp);
 	}
 
 	bool CheckIsReachWaypoint () {
