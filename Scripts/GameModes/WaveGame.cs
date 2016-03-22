@@ -6,10 +6,12 @@ public class WaveGame : MonoBehaviour {
 	ZombieWave curWave;
 
 	void FixedUpdate () {
-		if ((curWave == null || (curWave != null && curWave.IsDone)) && curWaveIndex < wavesData.Length-1) {
+		if ((curWave == null || (curWave != null && curWave.IsDone)) && curWaveIndex < wavesData.Length - 1) {
 			curWaveIndex++;
-			curWave = wavesData[curWaveIndex];
-			curWave.Active();
+			curWave = wavesData [curWaveIndex];
+			curWave.Active ();
+		} else if(curWaveIndex >= wavesData.Length){
+			EventDispatcher.TriggerEvent(GameEvents.GameStateEvents.END_GAME);
 		}
 	}
 }

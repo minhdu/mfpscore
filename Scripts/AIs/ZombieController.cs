@@ -2,18 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public enum ZombieAnim {
-	AWAKE = 0,
-	IDLE,
-	WALK,
-	RUN,
-	ATTACK,
-	HEAVY_ATTACK,
-	HURT,
-	DEAD
-}
-
-public class ZombieController : CoroutinableMono {
+public class ZombieController : CoroutinableMono, IEventListener {
 
 	public Zombie zombie;
 	public Animation anim;
@@ -48,6 +37,12 @@ public class ZombieController : CoroutinableMono {
 		return FPSCamera.Instance.GetComponentInParent<Waypoint> ();
 	}
 
+	public void ListenEvents () {
+		for(int i=0; i<colliders.Length; i++) {
+			EventDispatcher.AddEventListener<float> (GameEvents.GameplayEvents.DAMAGE + colliders[i].GetInstanceID(), Hurt);
+		}
+	}
+
 	public void Init (params Waypoint[] waypoints) {
 		navAgent = GetComponent<NavMeshAgent> ();
 		colliders = GetComponentsInChildren<Collider> ();
@@ -64,6 +59,8 @@ public class ZombieController : CoroutinableMono {
 		animClips.Add (ZombieAnim.DEAD, deadClips);
 
 		StartCoroutine (Wakeup ());
+
+		ListenEvents ();
 	}
 
 	void Update () {
@@ -215,22 +212,5 @@ public class ZombieController : CoroutinableMono {
 		}
 
 		return false;
-	}
-
-	void Damage (float damage) 
-	{
-
-//		if (!myaudio.isPlaying && hitpoints >= 0)
-//		{
-//
-//			int n = Random.Range(1,hurtSounds.Length);
-//			myaudio.clip = hurtSounds[n];
-//			myaudio.pitch = 0.9f + 0.1f *Random.value;
-//			myaudio.Play();
-//			hurtSounds[n] = hurtSounds[0];
-//			hurtSounds[0] = myaudio.clip;
-//		}
-//		hitpoints = hitpoints - damage;
-		Hurt(damage);
 	}
 }

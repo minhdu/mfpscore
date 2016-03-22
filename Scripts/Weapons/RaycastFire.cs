@@ -48,7 +48,8 @@ public class RaycastFire : Singleton<RaycastFire> {
 		{   
 			
 			if(hit.rigidbody) hit.rigidbody.AddForceAtPosition (500 * fwrd , hit.point);
-			hit.transform.SendMessageUpwards ("Damage",50f, SendMessageOptions.DontRequireReceiver);
+			//hit.transform.SendMessageUpwards ("Damage",50f, SendMessageOptions.DontRequireReceiver);
+			EventDispatcher.TriggerEvent<float>(GameEvents.GameplayEvents.DAMAGE + hit.collider.GetInstanceID(), 50f);
 			GameObject decal;
 			if (hit.transform.tag  == "flesh") 
 			{
@@ -93,7 +94,8 @@ public class RaycastFire : Singleton<RaycastFire> {
 		{   
 			Debug.Log (hit.collider.name);
 			if(hit.rigidbody) hit.rigidbody.AddForceAtPosition (force * fwrd , hit.point);
-			hit.transform.SendMessageUpwards ("Damage",damage, SendMessageOptions.DontRequireReceiver);
+			//hit.transform.SendMessageUpwards ("Damage",damage, SendMessageOptions.DontRequireReceiver);
+			EventDispatcher.TriggerEvent<float>(GameEvents.GameplayEvents.DAMAGE + hit.collider.GetInstanceID(), damage);
 			GameObject decal;
 			
 			
