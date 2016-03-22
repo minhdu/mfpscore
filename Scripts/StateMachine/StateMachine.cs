@@ -100,7 +100,7 @@ namespace UnuGames.StateMachine
 				string stateName = "";
 				Enum stateEnum = (Enum)values.GetValue(0);
 				for(int j=0; j<values.Length; j++) {
-					if(methods[j].Name.Contains(values.GetValue(j).ToString())) {
+					if(methods[i].Name.Contains(values.GetValue(j).ToString())) {
 						stateName = values.GetValue(j).ToString();
 						stateEnum = (Enum)values.GetValue(j);
 						break;

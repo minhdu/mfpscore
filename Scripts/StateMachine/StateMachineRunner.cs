@@ -65,6 +65,8 @@ namespace UnuGames.StateMachine
 			return fsm;
 		}
 
+		/*
+
 		void FixedUpdate()
 		{
 			for (int i = 0; i < stateMachineList.Count; i++)
@@ -97,6 +99,8 @@ namespace UnuGames.StateMachine
 				}
 			}
 		}
+
+		*/
 
 		//void OnCollisionEnter(Collision collision)
 		//{

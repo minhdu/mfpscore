@@ -92,7 +92,6 @@ public class RaycastFire : Singleton<RaycastFire> {
 		
 		if (Physics.Raycast(ray, out hit, range, mask))
 		{   
-			Debug.Log (hit.collider.name);
 			if(hit.rigidbody) hit.rigidbody.AddForceAtPosition (force * fwrd , hit.point);
 			//hit.transform.SendMessageUpwards ("Damage",damage, SendMessageOptions.DontRequireReceiver);
 			EventDispatcher.TriggerEvent<float>(GameEvents.GameplayEvents.DAMAGE + hit.collider.GetInstanceID(), damage);

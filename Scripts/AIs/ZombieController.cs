@@ -10,10 +10,16 @@ public class ZombieController : CoroutinableMono, IEventListener {
 	NavMeshAgent navAgent;
 	public Collider[] colliders;
 
+	[SerializeField]
 	bool isInited = false;
+
+	[SerializeField]
 	bool isReachWaypoint = false;
+
+	[SerializeField]
 	Waypoint[] wayPoints;
-	int curWaypoint = 0;
+	[SerializeField]
+	int curWaypoint = -1;
 	float nextAttackTime;
 	float nextRestTime;
 
@@ -34,8 +40,8 @@ public class ZombieController : CoroutinableMono, IEventListener {
 		Init (FindPlayer());
 	}
 
-	public Waypoint FindPlayer () {
-		return FPSCamera.Instance.GetComponentInParent<Waypoint> ();
+	public Waypoint[] FindPlayer () {
+		return FindObjectsOfType<Waypoint> ();
 	}
 
 	public void ListenEvents () {
@@ -51,6 +57,7 @@ public class ZombieController : CoroutinableMono, IEventListener {
 		colliders = GetComponentsInChildren<Collider> ();
 		wayPoints = waypoints;
 		curWaypoint = -1;
+		isReachWaypoint = false;
 
 		animClips.Add (ZombieAnim.AWAKE, awakeClips);
 		animClips.Add (ZombieAnim.IDLE, idleClips);
@@ -61,11 +68,9 @@ public class ZombieController : CoroutinableMono, IEventListener {
 		animClips.Add (ZombieAnim.HURT, hurtClips);
 		animClips.Add (ZombieAnim.DEAD, deadClips);
 
-		fsm.ChangeState (ZombieState.Wakeup);
+		ChangeState (ZombieState.Wakeup);
 
 		ListenEvents ();
-
-		isInited = true;
 	}
 
 	void Update () {
@@ -78,19 +83,24 @@ public class ZombieController : CoroutinableMono, IEventListener {
 		if (isReachWaypoint && zombie.hitPoint > 0) {
 			if (wayPoints [curWaypoint].isPlayer) {
 				if (Time.time > nextAttackTime + zombie.attackRate) {
-					fsm.ChangeState(ZombieState.Attack);
+					ChangeState(ZombieState.Attack);
 					nextAttackTime = Time.time;
 				}
 			} else {
 				if (Time.time > nextRestTime + zombie.maxRestTime) {
-					fsm.ChangeState(ZombieState.Idle);
+					ChangeState(ZombieState.Idle);
 					nextRestTime = Time.time;
 				}
 			}
 		}
 	}
 
-	
+	public void ChangeState (ZombieState state) {
+		if (zombie.hitPoint <= 0 && state != ZombieState.Die)
+			return;
+		fsm.ChangeState (state, StateTransition.Overwrite);
+	}
+
 	public void Hurt (float damage) {
 		navAgent.Stop ();
 		zombie.hitPoint -= damage;
@@ -98,9 +108,9 @@ public class ZombieController : CoroutinableMono, IEventListener {
 			for (int i = 0; i < colliders.Length; i++) {
 				colliders[i].enabled = false;
 			}
-			fsm.ChangeState(ZombieState.Die);
+			ChangeState(ZombieState.Die);
 		} else {
-			fsm.ChangeState(ZombieState.Hurt);
+			ChangeState(ZombieState.Hurt);
 		}
 	}
 	
@@ -116,7 +126,7 @@ public class ZombieController : CoroutinableMono, IEventListener {
 			ProportionValue.Create (1 - zombie.walkRate, ZombieState.Run)
 		};
 		
-		fsm.ChangeState (moveTypes.ChooseByRandom ());
+		ChangeState (moveTypes.ChooseByRandom ());
 		navAgent.SetDestination (wayPoints[curWaypoint].Position);
 		navAgent.Resume ();
 	}
@@ -128,7 +138,7 @@ public class ZombieController : CoroutinableMono, IEventListener {
 		};
 		bool isRandomRest = randomRest.ChooseByRandom();
 		if (isRandomRest) {
-			fsm.ChangeState (ZombieState.Idle);
+			ChangeState (ZombieState.Idle);
 			yield return new WaitForSeconds (Random.Range (zombie.minRestTime, zombie.maxRestTime));
 			SetMove ();
 		} else {
@@ -161,6 +171,8 @@ public class ZombieController : CoroutinableMono, IEventListener {
 	}
 	
 	bool CheckIsReachWaypoint () {
+		if (!isInited)
+			return false;
 		if (!navAgent.pathPending)
 		{
 			if (navAgent.remainingDistance <= navAgent.stoppingDistance)
@@ -180,6 +192,7 @@ public class ZombieController : CoroutinableMono, IEventListener {
 	IEnumerator OnWakeupEnter () {
 		yield return new WaitForSeconds (PlayAnimation (ZombieAnim.AWAKE));
 		SetNextTarget ();
+		isInited = true;
 	}
 
 	void OnWalkEnter () {
@@ -222,7 +235,7 @@ public class ZombieController : CoroutinableMono, IEventListener {
 	}
 
 	void OnAttackExit () {
-		fsm.ChangeState (ZombieState.Idle);
+		ChangeState (ZombieState.Idle);
 	}
 
 	#endregion
