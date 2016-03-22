@@ -13,3 +13,12 @@ public enum ZombieAnim {
 	HURT,
 	DEAD
 }
+
+public enum ZombieState {
+	Wakeup,
+	Idle,
+	Move,
+	Attack,
+	Hurt,
+	Die
+}

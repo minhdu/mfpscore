@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using UnuGames.StateMachine;
 
 public class ZombieController : CoroutinableMono, IEventListener {
 
@@ -17,6 +18,8 @@ public class ZombieController : CoroutinableMono, IEventListener {
 	float nextRestTime;
 
 	bool isStunning;
+
+	StateMachine<ZombieState> fsm;
 
 	public AnimationClip[] awakeClips;
 	public AnimationClip[] idleClips;
@@ -44,6 +47,8 @@ public class ZombieController : CoroutinableMono, IEventListener {
 	}
 
 	public void Init (params Waypoint[] waypoints) {
+		fsm = StateMachine<ZombieState>.Initialize (this);
+
 		navAgent = GetComponent<NavMeshAgent> ();
 		colliders = GetComponentsInChildren<Collider> ();
 		wayPoints = waypoints;
