@@ -17,8 +17,6 @@ public class ZombieController : CoroutinableMono, IEventListener {
 	float nextAttackTime;
 	float nextRestTime;
 
-	bool isStunning;
-
 	StateMachine<ZombieState> fsm;
 
 	public AnimationClip[] awakeClips;
@@ -63,9 +61,11 @@ public class ZombieController : CoroutinableMono, IEventListener {
 		animClips.Add (ZombieAnim.HURT, hurtClips);
 		animClips.Add (ZombieAnim.DEAD, deadClips);
 
-		StartCoroutine (Wakeup ());
+		fsm.ChangeState (ZombieState.Wakeup);
 
 		ListenEvents ();
+
+		isInited = true;
 	}
 
 	void Update () {
@@ -78,47 +78,64 @@ public class ZombieController : CoroutinableMono, IEventListener {
 		if (isReachWaypoint && zombie.hitPoint > 0) {
 			if (wayPoints [curWaypoint].isPlayer) {
 				if (Time.time > nextAttackTime + zombie.attackRate) {
-					RunCoroutine ("Attack", Idle);
+					fsm.ChangeState(ZombieState.Attack);
 					nextAttackTime = Time.time;
 				}
 			} else {
-				if (Time.time > nextRestTime + zombie.restTime) {
-					StartCoroutine ("Rest");
+				if (Time.time > nextRestTime + zombie.maxRestTime) {
+					fsm.ChangeState(ZombieState.Idle);
 					nextRestTime = Time.time;
 				}
 			}
 		}
 	}
 
-	public void SetNextTarget () {
-		curWaypoint++;
-		SetMove ();
-		StartCoroutine ("Move");
-		isReachWaypoint = false;
-	}
-
-	public void SetMove () {
-		if (zombie.hitPoint <= 0)
-			return;
-		navAgent.SetDestination (wayPoints[curWaypoint].Position);
-		navAgent.Resume ();
-		StartCoroutine ("Move");
-	}
-
+	
 	public void Hurt (float damage) {
-		isStunning = true;
 		navAgent.Stop ();
 		zombie.hitPoint -= damage;
 		if (zombie.hitPoint <= 0) {
 			for (int i = 0; i < colliders.Length; i++) {
 				colliders[i].enabled = false;
 			}
-			StartCoroutine (Dead ());
+			fsm.ChangeState(ZombieState.Die);
 		} else {
-			Invoke ("SetMove", PlayAnimation (ZombieAnim.HURT));
+			fsm.ChangeState(ZombieState.Hurt);
 		}
 	}
-
+	
+	public void SetNextTarget () {
+		curWaypoint++;
+		SetMove ();
+		isReachWaypoint = false;
+	}
+	
+	void SetMove () {
+		var moveTypes = new[] {
+			ProportionValue.Create (zombie.walkRate, ZombieState.Walk),
+			ProportionValue.Create (1 - zombie.walkRate, ZombieState.Run)
+		};
+		
+		fsm.ChangeState (moveTypes.ChooseByRandom ());
+		navAgent.SetDestination (wayPoints[curWaypoint].Position);
+		navAgent.Resume ();
+	}
+	
+	IEnumerator SetRandomBehavior () {
+		var randomRest = new[] {
+			ProportionValue.Create (zombie.randomRestRate, true),
+			ProportionValue.Create (1 - zombie.randomRestRate, false)
+		};
+		bool isRandomRest = randomRest.ChooseByRandom();
+		if (isRandomRest) {
+			fsm.ChangeState (ZombieState.Idle);
+			yield return new WaitForSeconds (Random.Range (zombie.minRestTime, zombie.maxRestTime));
+			SetMove ();
+		} else {
+			yield return null;
+		}
+	}
+	
 	float PlayAnimation (ZombieAnim clip, WrapMode wrapMode = WrapMode.Once, bool crossFade=false, float fadeLenght=0.25f, bool playQueue = false) {
 		AnimationClip[] clips = animClips [clip];
 		AnimationClip animClip = clips [Random.Range (0, clips.Length)];
@@ -139,72 +156,10 @@ public class ZombieController : CoroutinableMono, IEventListener {
 			}
 			return animClip.length;
 		}
-
+		
 		return 0;
 	}
-
-	IEnumerator Wakeup () {
-		yield return new WaitForSeconds (PlayAnimation (ZombieAnim.AWAKE));
-		SetNextTarget ();
-		isInited = true;
-	}
-
-	IEnumerator Move () {
-		var moveTypes = new[] {
-			ProportionValue.Create (zombie.walkRate, ZombieAnim.WALK),
-			ProportionValue.Create (1 - zombie.walkRate, ZombieAnim.RUN)
-		};
-
-		ZombieAnim move = moveTypes.ChooseByRandom ();
-		PlayAnimation (move, WrapMode.Loop, true, 0.25f);
-		if (move == ZombieAnim.WALK)
-			navAgent.speed = zombie.walkSpeed;
-		else
-			navAgent.speed = zombie.runSpeed;
-
-		var stopMove = new[] {
-			ProportionValue.Create (zombie.randomChangeMoveStateRate, true),
-			ProportionValue.Create (1 - zombie.randomChangeMoveStateRate, false)
-		};
-		bool isRndChangeMoveState = stopMove.ChooseByRandom();
-		if (isRndChangeMoveState) {
-			yield return new WaitForSeconds (Random.Range(2f, 5f));
-			StartCoroutine ("Move");
-		}
-	}
-
-	IEnumerator Dead () {
-		StopCoroutine ("Move");
-		StopCoroutine ("Rest");
-		StopCoroutine ("Attack");
-		navAgent.Stop ();
-		yield return new WaitForSeconds(PlayAnimation (ZombieAnim.DEAD, WrapMode.Once, true, 0.25f));
-		Destroy (gameObject);
-	}
-
-	IEnumerator Attack () {
-		var attackTypes = new[] {
-			ProportionValue.Create (zombie.heaveAttackRate, ZombieAnim.HEAVY_ATTACK),
-			ProportionValue.Create (1 - zombie.heaveAttackRate, ZombieAnim.ATTACK)
-		};
-		ZombieAnim attack = attackTypes.ChooseByRandom ();
-		float attackTime = PlayAnimation (attack, WrapMode.Once, true);
-		yield return new WaitForSeconds (attackTime * 0.75f);
-		float damage = attack == ZombieAnim.ATTACK ? zombie.normalDamage : zombie.heavyDamage;
-		EventDispatcher.TriggerEvent<float> ("PlayerHurt", damage);
-		//PlayerController.Instance.Hurt (damage);
-	}
-
-	IEnumerator Rest () {
-		PlayAnimation (ZombieAnim.IDLE, WrapMode.Loop, true, 0.1f);
-		yield return new WaitForSeconds (zombie.restTime);
-		SetNextTarget ();
-	}
-
-	void Idle () {
-		PlayAnimation (ZombieAnim.IDLE, WrapMode.Loop, true, 0.25f);
-	}
-
+	
 	bool CheckIsReachWaypoint () {
 		if (!navAgent.pathPending)
 		{
@@ -216,7 +171,59 @@ public class ZombieController : CoroutinableMono, IEventListener {
 				}
 			}
 		}
-
+		
 		return false;
 	}
+
+	#region State
+
+	IEnumerator OnWakeupEnter () {
+		yield return new WaitForSeconds (PlayAnimation (ZombieAnim.AWAKE));
+		SetNextTarget ();
+	}
+
+	void OnWalkEnter () {
+		PlayAnimation (ZombieAnim.WALK, WrapMode.Loop, true, 0.25f);
+		navAgent.speed = zombie.walkSpeed;
+		StartCoroutine(SetRandomBehavior ());
+	}
+
+	void OnRunEnter () {
+		PlayAnimation (ZombieAnim.RUN, WrapMode.Loop, true, 0.25f);
+		navAgent.speed = zombie.runSpeed;
+		StartCoroutine(SetRandomBehavior ());
+	}
+
+	void OnIdleEnter () {
+		PlayAnimation (ZombieAnim.IDLE, WrapMode.Loop, true, 0.25f);
+	}
+
+	IEnumerator OnHurtEnter () {
+		yield return new WaitForSeconds(PlayAnimation (ZombieAnim.HURT));
+		SetMove ();
+	}
+
+	IEnumerator OnDieEnter () {
+		navAgent.Stop ();
+		yield return new WaitForSeconds(PlayAnimation (ZombieAnim.DEAD, WrapMode.Once, true, 0.25f));
+		Destroy (gameObject);
+	}
+
+	IEnumerator OnAttackEnter () {
+		var attackTypes = new[] {
+			ProportionValue.Create (zombie.heaveAttackRate, ZombieAnim.HEAVY_ATTACK),
+			ProportionValue.Create (1 - zombie.heaveAttackRate, ZombieAnim.ATTACK)
+		};
+		ZombieAnim attack = attackTypes.ChooseByRandom ();
+		float attackTime = PlayAnimation (attack, WrapMode.Once, true);
+		yield return new WaitForSeconds (attackTime * 0.75f);
+		float damage = attack == ZombieAnim.ATTACK ? zombie.normalDamage : zombie.heavyDamage;
+		EventDispatcher.TriggerEvent<float> ("PlayerHurt", damage);
+	}
+
+	void OnAttackExit () {
+		fsm.ChangeState (ZombieState.Idle);
+	}
+
+	#endregion
 }

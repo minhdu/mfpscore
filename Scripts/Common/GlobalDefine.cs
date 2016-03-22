@@ -17,7 +17,8 @@ public enum ZombieAnim {
 public enum ZombieState {
 	Wakeup,
 	Idle,
-	Move,
+	Walk,
+	Run,
 	Attack,
 	Hurt,
 	Die
