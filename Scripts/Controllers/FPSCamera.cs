@@ -21,13 +21,9 @@ public class FPSCamera : Singleton<FPSCamera> {
 
 
 	Vector2 slideInput;
-	float originalRotation;
 
 	float xSensitive = 2000f;
 	float ySensitive = 900F;
-	float rotateCoef = 1f;
-	float minYAngle = -60F;
-	float maxYAngle = 60F;
 
 	public Transform Transform {
 		get {
@@ -67,7 +63,6 @@ public class FPSCamera : Singleton<FPSCamera> {
 	void InitCamera () {
 		cameraHandleArea.FingerBound = new Rect(0,0, ScreenHelper.ScreenSize.x*3, ScreenHelper.ScreenSize.y);
 		cameraTrans = PlayerCamera.GetComponent<Transform> ();
-		originalRotation = cameraTrans.rotation.eulerAngles.y;
 		originalPosition = cameraTrans.localPosition;
 		isInited = true;
 	}
@@ -79,8 +74,6 @@ public class FPSCamera : Singleton<FPSCamera> {
 	}
 
 	void HandleTouch () {
-		if (Input.touchCount > 0)
-			CameraShake.Instance.StopIdle ();
 		foreach  (Touch touch in Input.touches)
 		{
 			// Began Touch Phase

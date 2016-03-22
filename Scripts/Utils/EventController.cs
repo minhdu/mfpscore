@@ -150,7 +150,7 @@ public class EventController
 				}
 				catch (Exception ex)
 				{
-					////Logger.LogErrorFormat (ex, null);
+					UnityEngine.Debug.LogException(ex);
 				}
 			}
 		}
@@ -175,7 +175,7 @@ public class EventController
 				}
 				catch (Exception ex)
 				{
-					//Logger.LogErrorFormat (ex, null);
+					UnityEngine.Debug.LogException(ex);
 				}
 			}
 		}
@@ -200,7 +200,7 @@ public class EventController
 				}
 				catch (Exception ex)
 				{
-					//Logger.LogErrorFormat (ex, null);
+					UnityEngine.Debug.LogException(ex);
 				}
 			}
 		}
@@ -225,7 +225,7 @@ public class EventController
 				}
 				catch (Exception ex)
 				{
-					//Logger.LogErrorFormat (ex, null);
+					UnityEngine.Debug.LogException(ex);
 				}
 			}
 		}
@@ -250,7 +250,7 @@ public class EventController
 				}
 				catch (Exception ex)
 				{
-					//Logger.LogErrorFormat (ex, null);
+					UnityEngine.Debug.LogException(ex);
 				}
 			}
 		}

@@ -9,32 +9,6 @@ public class CameraShake : Singleton<CameraShake> {
 	float dropOffTime = 1.6f; // How long it takes the shaking to settle down to nothing
 	LTDescr shootTween;
 	LTDescr idleTween;
-	Transform mTransform;
-	Vector3 idleVector;
-	bool isIdle = false;
-	Vector3 originalPosition;
-
-	void Awake () {
-		mTransform = GetComponent<Transform> ();
-		idleVector = new Vector3 (mTransform.localPosition.x, mTransform.localPosition.y + 0.05f, mTransform.localPosition.z);
-		originalPosition = mTransform.localPosition;
-	}
-
-	public void Idle () {
-//		if (!isIdle && idleTween != null) {
-//			LeanTween.resume (idleTween.uniqueId);
-//			return;
-//		}
-//		isIdle = true;
-//		idleTween = LeanTween.moveLocal(gameObject, idleVector, 1.5f).setEase(LeanTweenType.easeInSine).setLoopPingPong(-1);
-	}
-
-	public void StopIdle () {
-//		if (idleTween != null) {
-//			LeanTween.pause (idleTween.uniqueId);
-//			isIdle = false;
-//		}
-	}
 
 	public void GrenadeShake (Action onShakeComplete=null) {
 		LTDescr shakeTween = LeanTween.rotateAround(gameObject, Vector3.right, shakeAmt, shakePeriodTime)

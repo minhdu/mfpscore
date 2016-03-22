@@ -20,7 +20,7 @@ public class Minigun : WeaponBehaviour {
 	float nextshot;
 	public float shotinterval = 0.2f;
 
-	new void Update () {
+	void Update () {
 		float step = speed * Time.deltaTime;
 		
 		float newField = Mathf.Lerp(Camera.main.fieldOfView, nextField, Time.deltaTime * 2);

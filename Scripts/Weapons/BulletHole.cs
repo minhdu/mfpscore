@@ -5,7 +5,7 @@ public class BulletHole : MonoBehaviour {
 
 	public float delayTime = 0;
 	public float fadeTime = 0;
-	public Renderer renderer;
+	public Renderer holeRenderer;
 
 	IEnumerator Start () {
 		yield return new WaitForSeconds (delayTime);
@@ -13,8 +13,8 @@ public class BulletHole : MonoBehaviour {
 	}
 
 	void UpdateAlpha (float alpha) {
-		Color color = renderer.material.color;
-		renderer.sharedMaterial.color = new Color (color.r, color.g, color.b, alpha);
+		Color color = holeRenderer.material.color;
+		holeRenderer.sharedMaterial.color = new Color (color.r, color.g, color.b, alpha);
 	}
 
 	void OnFadeComplete () {

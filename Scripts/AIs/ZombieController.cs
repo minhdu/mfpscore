@@ -186,6 +186,7 @@ public class ZombieController : CoroutinableMono, IEventListener {
 		float attackTime = PlayAnimation (attack, WrapMode.Once, true);
 		yield return new WaitForSeconds (attackTime * 0.75f);
 		float damage = attack == ZombieAnim.ATTACK ? zombie.normalDamage : zombie.heavyDamage;
+		EventDispatcher.TriggerEvent<float> ("PlayerHurt", damage);
 		//PlayerController.Instance.Hurt (damage);
 	}
 

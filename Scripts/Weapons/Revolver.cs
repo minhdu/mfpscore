@@ -20,7 +20,7 @@ public class Revolver : WeaponBehaviour {
 	public AnimationClip reloadonceAnim;
 	public AnimationClip reloadlastAnim;
 
-	new void Update () {
+	void Update () {
 		
 		float step = speed * Time.deltaTime;
 		
@@ -149,7 +149,6 @@ public class Revolver : WeaponBehaviour {
 			//float randomY = Random.Range (-0.1f,0.1f);
 
 			trans.localPosition = new Vector3(trans.localPosition.x, trans.localPosition.y ,trans.localPosition.z + randomZ);
-			camerarotate cameracontroller = recoilCamera.GetComponent<camerarotate>();
 
 			CameraRotate.Instance.DoRecoil(recoil);
 

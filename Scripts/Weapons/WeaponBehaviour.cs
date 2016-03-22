@@ -213,7 +213,6 @@ public abstract class WeaponBehaviour : MonoBehaviour, IGun {
 			//float randomY = Random.Range (-0.1f,0.1f);
 
 			trans.localPosition = new Vector3(trans.localPosition.x, trans.localPosition.y ,trans.localPosition.z + randomZ);
-			camerarotate cameracontroller = recoilCamera.GetComponent<camerarotate>();
 
 			CameraRotate.Instance.DoRecoil(recoil);
 

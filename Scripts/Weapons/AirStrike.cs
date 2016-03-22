@@ -10,15 +10,7 @@ public class AirStrike : Singleton<AirStrike> {
 	public Vector3 bulletLineAngle = new Vector3(45,180,0);
 	public float flyDistance;
 
-	Transform mTransform;
-	Vector3 _targetPosition;
-
-	void Awake () {
-		mTransform = GetComponent<Transform> ();
-	}
-
 	public void Active (Vector3 targetPosition) {
-		_targetPosition = targetPosition;
 		LeanTween.move (gameObject, strikeDestination.position, flyDistance).setOnUpdate(Shoot);
 	}
 

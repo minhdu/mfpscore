@@ -10,7 +10,7 @@ public class FlameThrower : WeaponBehaviour {
 
 	float curAmmo;
 
-	new void Start()
+	void Start()
 	{
 		curve = new AnimationCurve ();
 		curve.AddKey(0.0f,0.1f);
@@ -23,7 +23,7 @@ public class FlameThrower : WeaponBehaviour {
 		OnStart();
 	}
 
-	new void Update () {
+	void Update () {
 		float step = speed * Time.deltaTime;
 		
 		float newField = Mathf.Lerp(Camera.main.fieldOfView, nextField, Time.deltaTime * 2);

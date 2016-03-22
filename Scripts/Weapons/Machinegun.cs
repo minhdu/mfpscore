@@ -14,7 +14,7 @@ public class Machinegun : WeaponBehaviour {
 	public Transform bullet8;
 	private Transform nextbullet;
 
-	new void Update ()  {
+	void Update ()  {
 		float step = speed * Time.deltaTime;
 		
 		float newField = Mathf.Lerp(Camera.main.fieldOfView, nextField, Time.deltaTime * 2);
