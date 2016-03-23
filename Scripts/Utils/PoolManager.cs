@@ -16,7 +16,7 @@ public class PoolManager : Singleton<PoolManager> {
 
 	public void InitPool (PoolTag tag, int amount) {
 		List<GameObject> objs = new List<GameObject> ();
-		GameObject prefab = RescourcesFactory.Load<GameObject> (resources[(int)tag]);
+		GameObject prefab = ResourceFactory.Load<GameObject> (resources[(int)tag]);
 		for (int i=0; i<amount; i++) {
 			objs.Add(Instantiate(prefab, hidePos, Quaternion.identity) as GameObject);
 		}

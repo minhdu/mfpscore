@@ -10,6 +10,6 @@ public class Zombie {
 	public float attackRate;
 	public float minRestTime = 2;
 	public float maxRestTime = 5;
-	public float walkRate;
+	public float angryRate;
 	public float randomRestRate = 0;
 }
