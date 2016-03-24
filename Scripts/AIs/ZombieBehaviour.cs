@@ -13,14 +13,24 @@ public class ZombieBehaviour : CoroutinableMono, IEventListener {
 	bool isInited = false;
 
 	[SerializeField]
+	bool isActive = false;
+
+	[SerializeField]
 	bool isReachWaypoint = false;
 
 	[SerializeField]
 	Waypoint[] wayPoints;
+
 	[SerializeField]
 	int curWaypoint = -1;
+
+	[SerializeField]
 	float nextAttackTime;
+
+	[SerializeField]
 	float nextRestTime;
+
+	[SerializeField]
 	float damage;
 
 	void OnEnable () {
@@ -38,10 +48,17 @@ public class ZombieBehaviour : CoroutinableMono, IEventListener {
 	}
 
 	public void Init (params Waypoint[] waypoints) {
+
+		isActive = true;
+
+		if (isInited) {
+			SetNextTarget ();
+			return;
+		}
+
 		navAgent = GetComponent<NavMeshAgent> ();
 		colliders = GetComponentsInChildren<Collider> ();
 		wayPoints = waypoints;
-		curWaypoint = -1;
 		isReachWaypoint = false;
 
 		animator.SetInteger ("AnimationTemplate", Random.Range(0, 1));
@@ -51,21 +68,20 @@ public class ZombieBehaviour : CoroutinableMono, IEventListener {
 		}
 
 		ListenEvents ();
-
 		SetNextTarget ();
 	}
 
 	void Update () {
-		if (!isInited)
+		if (!isInited || !isActive)
 			return;
 
 		if (!isReachWaypoint)
 			isReachWaypoint = CheckIsReachWaypoint ();
-		
+
 		if (isReachWaypoint && zombie.hitPoint > 0) {
 			if (wayPoints [curWaypoint].isPlayer) {
-				if (Time.time > nextAttackTime + zombie.attackRate) {
-					ChangeState(ZombieState.Attack);
+				if (Time.time > nextAttackTime + zombie.attackCooldown) {
+					SetAttack();
 					nextAttackTime = Time.time;
 				}
 			} else {
@@ -77,11 +93,27 @@ public class ZombieBehaviour : CoroutinableMono, IEventListener {
 		}
 	}
 
-	public void SetDamage (bool heavyAttack) {
-		if (heavyAttack)
+	public void ChangeState (ZombieState state) {
+		if (zombie.hitPoint <= 0 && state != ZombieState.Die)
+			return;
+		animator.SetInteger ("CurrentState", (int)state);
+	}
+
+	public void SetDamage (ZombieState state) {
+		if (state == ZombieState.HeavyAttack)
 			damage = zombie.heavyDamage;
 		else
 			damage = zombie.normalDamage;
+	}
+
+	public void SetAttack () {
+		var attackTypes = new[] {
+			ProportionValue.Create (zombie.heavyAttackRate, ZombieState.HeavyAttack),
+			ProportionValue.Create (1 - zombie.heavyAttackRate, ZombieState.Attack)
+		};
+		ZombieState attackType = attackTypes.ChooseByRandom ();
+		ChangeState (attackType);
+		SetDamage (attackType);
 	}
 
 	public void SetMove () {
@@ -89,26 +121,21 @@ public class ZombieBehaviour : CoroutinableMono, IEventListener {
 			ProportionValue.Create (zombie.angryRate, ZombieState.Walk),
 			ProportionValue.Create (1 - zombie.angryRate, ZombieState.Angry)
 		};
-
 		ZombieState moveType = moveTypes.ChooseByRandom ();
-
 		if(moveType == ZombieState.Walk)
 			MoveAgent();
-
 		StartCoroutine (SetRandomBehavior ());
+	}
+
+	public void SetActive () {
+		curWaypoint = -1;
+		isActive = false;
 	}
 
 	public void MoveAgent () {
 		navAgent.SetDestination (wayPoints[curWaypoint].Position);
 		navAgent.acceleration = 8;
 		navAgent.Resume ();
-	}
-
-	public void ChangeState (ZombieState state) {
-		if (zombie.hitPoint <= 0 && state != ZombieState.Die)
-			return;
-
-		animator.SetInteger ("CurrentState", (int)state);
 	}
 
 	public void Hurt (float damage) {
@@ -136,6 +163,7 @@ public class ZombieBehaviour : CoroutinableMono, IEventListener {
 	}
 
 	IEnumerator SetRandomBehavior () {
+		yield return new WaitForSeconds (zombie.randomBehaviourTime);
 		var randomRest = new[] {
 			ProportionValue.Create (zombie.randomRestRate, true),
 			ProportionValue.Create (1 - zombie.randomRestRate, false)
@@ -153,17 +181,13 @@ public class ZombieBehaviour : CoroutinableMono, IEventListener {
 	bool CheckIsReachWaypoint () {
 		if (!isInited)
 			return false;
-		if (!navAgent.pathPending)
-		{
-			if (navAgent.remainingDistance <= navAgent.stoppingDistance)
-			{
-				if (!navAgent.hasPath || navAgent.velocity.sqrMagnitude <= 0.1f)
-				{
+		if (!navAgent.pathPending) {
+			if (navAgent.remainingDistance <= navAgent.stoppingDistance) {
+				if (!navAgent.hasPath || navAgent.velocity.sqrMagnitude <= 0.1f) {
 					return true;
 				}
 			}
 		}
-		
 		return false;
 	}
 }
