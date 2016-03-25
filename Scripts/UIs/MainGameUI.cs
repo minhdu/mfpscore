@@ -1,14 +1,16 @@
-﻿using UnityEngine;
-using System.Collections;
-using UnityEngine.UI;
+﻿
+using UnuGames.MVVM.ViewModel;
 
-public class MainGameUI : Singleton<MainGameUI> {
+// This code is generated automatically by UIMan ViewModelGerenrator, please do not modify!
 
-	public Text text; 
+public partial class MainGameUI : UIManScreen {
 
-	public void SetHeadShot () {
-		LeanTween.cancel (text.gameObject);
-		text.color = Color.black;
-		LeanTween.alphaText (text.rectTransform, 0, 1f);
+
+	string _waveNumInfo = "";
+	[UIManProperty]
+	public string WaveNumInfo {
+		get { return _waveNumInfo; }
+		set { _waveNumInfo = value; OnPropertyChanged(); }
 	}
+
 }

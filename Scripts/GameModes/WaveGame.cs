@@ -12,6 +12,7 @@ public class WaveGame : Singleton<WaveGame> {
 			curWaveIndex++;
 			curWave = wavesData [curWaveIndex];
 			curWave.Active ();
+			MainGameUI.Instance.WaveNumInfo = "Wave: " + (curWaveIndex+1).ToString() + "/" + wavesData.Length;
 		} else if(curWaveIndex >= wavesData.Length){
 			EventDispatcher.TriggerEvent(GameEvents.GameStateEvents.END_GAME);
 		}
