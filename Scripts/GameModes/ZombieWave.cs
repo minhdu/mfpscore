@@ -2,7 +2,7 @@
 using System.Collections;
 
 [System.Serializable]
-public class ZombieWave : MonoBehaviour {
+public class ZombieWave : MonoBehaviour, IEventListener {
 	public GameObject[] zombies;
 	public SpawnPoint[] spawnPoints;
 	public bool constrainData = true;
@@ -23,6 +23,16 @@ public class ZombieWave : MonoBehaviour {
 	}
 
 	bool active = false;
+	int curNum = 0;
+
+	public void ListenEvents () {
+		EventDispatcher.AddEventListener (GameEvents.GameplayEvents.ZOMBIE_DEAD, OnAnyZombieDead);
+	}
+
+	public void OnAnyZombieDead () {
+		if(active)
+			curNum--;
+	}
 
 	public void Active () {
 		timer = waveDuration + delayTime;
@@ -30,8 +40,10 @@ public class ZombieWave : MonoBehaviour {
 			isDone = true;
 			return;
 		}
-		StartCoroutine(Spawn());
+		curNum = spawnNum;
+		StartCoroutine (Spawn ());
 		active = true;
+		ListenEvents ();
 	}
 
 	void Update () {
@@ -40,7 +52,10 @@ public class ZombieWave : MonoBehaviour {
 		if (timer > 0) {
 			timer -= Time.deltaTime;
 		} else {
-			isDone = true;
+			if ((curNum <= 0 && WaveGame.Instance.killAllForNextWave) || !WaveGame.Instance.killAllForNextWave) {
+				EventDispatcher.RemoveEventListener (GameEvents.GameplayEvents.ZOMBIE_DEAD, OnAnyZombieDead);
+				isDone = true;
+			}
 		}
 	}
 

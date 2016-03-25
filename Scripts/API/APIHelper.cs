@@ -34,7 +34,7 @@ public class APIHelper : MonoBehaviour {
         url = BuildURL(url);
 
 #if UNITY_DEBUG
-        Logger.Log(string.Format("<b>Request: </b><color=blue>{0}</color>, Data lenght: {1}", url, data.Length));
+		UnuLogger.Log(string.Format("<b>Request: </b><color=blue>{0}</color>, Data lenght: {1}", url, data.Length));
 #endif
 
         WWW w = new WWW(url, data, headers);

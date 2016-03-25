@@ -8,5 +8,6 @@
 
 	public static class GameplayEvents {
 		public static readonly string DAMAGE = "DAMAGE_";
+		public static readonly string ZOMBIE_DEAD = "ZOMBIE_DEAD";
 	}
 }

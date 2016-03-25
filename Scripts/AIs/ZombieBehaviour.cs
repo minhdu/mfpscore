@@ -4,22 +4,11 @@ using System.Collections.Generic;
 
 public class ZombieBehaviour : CoroutinableMono, IEventListener {
 
-	readonly string[] stateTriggers = new string[] {
-		"Wakeup",
-		"Idle",
-		"Walk",
-		"Run",
-		"Angry",
-		"Attack",
-		"HeavyAttack",
-		"Hurt",
-		"Die"
-	};
-
 	public Zombie zombie;
-	public Animator animator;
+	public Animation anim;
 	NavMeshAgent navAgent;
 	public Collider[] colliders;
+	public Collider headColliders;
 
 	[SerializeField]
 	bool isInited = false;
@@ -45,6 +34,18 @@ public class ZombieBehaviour : CoroutinableMono, IEventListener {
 	[SerializeField]
 	float damage;
 
+	public AnimationClip wakeupAnim;
+	public AnimationClip idleAnim;
+	public AnimationClip walkAnim;
+	public AnimationClip runAnim;
+	public AnimationClip angryAnim;
+	public AnimationClip hurtAnim;
+	public AnimationClip attackAnim;
+	public AnimationClip heavyAttackAnim;
+	public AnimationClip dieAnim;
+
+	AnimationClip[] animClips;
+
 	void OnEnable () {
 		Init (FindPlayer());
 	}
@@ -57,6 +58,7 @@ public class ZombieBehaviour : CoroutinableMono, IEventListener {
 		for(int i=0; i<colliders.Length; i++) {
 			EventDispatcher.AddEventListener<float> (GameEvents.GameplayEvents.DAMAGE + colliders[i].GetInstanceID(), Hurt);
 		}
+		EventDispatcher.AddEventListener<float> (GameEvents.GameplayEvents.DAMAGE + headColliders.GetInstanceID(), BeHeadShot);
 	}
 
 	public void Init (params Waypoint[] waypoints) {
@@ -67,16 +69,26 @@ public class ZombieBehaviour : CoroutinableMono, IEventListener {
 			return;
 		}
 
+		animClips = new AnimationClip[] {
+			wakeupAnim,
+			idleAnim,
+			walkAnim,
+			runAnim,
+			angryAnim,
+			attackAnim,
+			heavyAttackAnim,
+			hurtAnim,
+			dieAnim
+		};
+
+		for (int i = 0; i < animClips.Length; i++) {
+			anim.AddClip (animClips [i], animClips[i].name);
+		}
+
 		navAgent = GetComponent<NavMeshAgent> ();
 		colliders = GetComponentsInChildren<Collider> ();
 		wayPoints = waypoints;
 		isReachWaypoint = false;
-
-		animator.SetInteger ("AnimationTemplate", Random.Range(0, 1));
-		ZombieStateBase[] states = animator.GetBehaviours<ZombieStateBase> ();
-		for (int i = 0; i < states.Length; i++) {
-			states [i].Init (this);
-		}
 
 		ListenEvents ();
 		SetNextTarget ();
@@ -97,18 +109,36 @@ public class ZombieBehaviour : CoroutinableMono, IEventListener {
 				}
 			} else {
 				if (Time.time > nextRestTime + zombie.maxRestTime) {
-					ChangeState(ZombieState.Idle);
+					ChangeState(ZombieState.Idle, WrapMode.Loop);
 					nextRestTime = Time.time;
 				}
 			}
 		}
 	}
 
-	public void ChangeState (ZombieState state) {
-		Debug.Log (state);
+	public float ChangeState (ZombieState state, WrapMode wrapMode = WrapMode.Default, bool isCrossFade = true, float fadeLenght = 0.3f) {
+		//Debug.Log (state);
 		if (zombie.hitPoint <= 0 && state != ZombieState.Die)
-			return;
-		animator.SetTrigger (stateTriggers[(int)state]);
+			return 0;
+
+		AnimationClip clip = animClips [(int)state];
+		string stateName = clip.name;
+
+		if (anim.IsPlaying (stateName))
+			return 0;
+		
+		anim.wrapMode = wrapMode;
+
+		if (isCrossFade) {
+			anim.CrossFadeQueued (stateName, fadeLenght, QueueMode.PlayNow);
+		} else {
+			anim.Play (stateName);
+		}
+
+		if (isCrossFade)
+			return clip.length - fadeLenght;
+		else
+			return clip.length;
 	}
 
 	public void SetDamage (ZombieState state) {
@@ -124,24 +154,31 @@ public class ZombieBehaviour : CoroutinableMono, IEventListener {
 			ProportionValue.Create (1 - zombie.heavyAttackRate, ZombieState.Attack)
 		};
 		ZombieState attackType = attackTypes.ChooseByRandom ();
-		ChangeState (attackType);
+		ChangeState (attackType, WrapMode.Once);
 		SetDamage (attackType);
 	}
 
-	public void SetMove () {
-		if (!enableSetMove)
-			return;
-		else
-			enableSetMove = false;
+	public IEnumerator SetMove () {
+		if(zombie.hitPoint <=0) {
+			yield break;
+		}
 		var moveTypes = new[] {
 			ProportionValue.Create (zombie.angryRate, ZombieState.Angry),
 			ProportionValue.Create (1 - zombie.angryRate, ZombieState.Walk)
 		};
 		ZombieState moveType = moveTypes.ChooseByRandom ();
-		ChangeState (moveType);
 		if (moveType == ZombieState.Walk) {
+			ChangeState (moveType, WrapMode.Loop);
 			MoveAgent ();
-			SetSpeed (ZombieState.Walk);
+			navAgent.speed = zombie.walkSpeed;
+			yield break;
+		} else {
+			yield return new WaitForSeconds (ChangeState (moveType, WrapMode.Once));
+			if (zombie.hitPoint <= 0)
+				yield break;
+			MoveAgent ();
+			navAgent.speed = zombie.runSpeed;
+			ChangeState (ZombieState.Run, WrapMode.Loop);
 		}
 	}
 
@@ -150,33 +187,42 @@ public class ZombieBehaviour : CoroutinableMono, IEventListener {
 		isActive = false;
 	}
 
-	public void SetSpeed (ZombieState state) {
-		if (state == ZombieState.Walk)
-			navAgent.speed = zombie.walkSpeed;
-		else
-			navAgent.speed = zombie.runSpeed;
-	}
-
 	public void MoveAgent () {
 		navAgent.SetDestination (wayPoints[curWaypoint].Position);
 		navAgent.acceleration = 8;
 		navAgent.Resume ();
 	}
 
-	bool enableSetMove = false;
+	public void BeHeadShot (float damage) {
+		zombie.hitPoint = 0;
+		Die ();
+		MainGameUI.Instance.SetHeadShot ();
+	}
+
+	public void Die () {
+		for (int i = 0; i < colliders.Length; i++) {
+			colliders[i].enabled = false;
+		}
+		ChangeState(ZombieState.Die, WrapMode.Once);
+		EventDispatcher.TriggerEvent (GameEvents.GameplayEvents.ZOMBIE_DEAD);
+	}
+
 	public void Hurt (float damage) {
-		enableSetMove = true;
 		navAgent.acceleration = 90;
 		navAgent.Stop ();
 		zombie.hitPoint -= damage;
 		if (zombie.hitPoint <= 0) {
-			for (int i = 0; i < colliders.Length; i++) {
-				colliders[i].enabled = false;
-			}
-			ChangeState(ZombieState.Die);
+			Die ();
 		} else {
-			ChangeState(ZombieState.Hurt);
+			if (!anim.IsPlaying (hurtAnim.name)) {
+				StartCoroutine ("HurtThenResume");
+			}
 		}
+	}
+
+	IEnumerator HurtThenResume () {
+		yield return new WaitForSeconds(ChangeState (ZombieState.Hurt, WrapMode.Once));
+		StartCoroutine ("SetMove");
 	}
 
 	public void CauseDamage () {
@@ -185,7 +231,7 @@ public class ZombieBehaviour : CoroutinableMono, IEventListener {
 	
 	public void SetNextTarget () {
 		curWaypoint++;
-		SetMove ();
+		StartCoroutine("SetMove");
 		isReachWaypoint = false;
 	}
 	

@@ -1,7 +1,9 @@
 ﻿using UnityEngine;
 
-public class WaveGame : MonoBehaviour {
+public class WaveGame : Singleton<WaveGame> {
+	
 	public ZombieWave[] wavesData;
+	public bool killAllForNextWave;
 	int curWaveIndex = -1;
 	ZombieWave curWave;
 
