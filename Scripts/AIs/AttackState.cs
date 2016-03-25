@@ -3,13 +3,10 @@ using System.Collections;
 
 public class AttackState : ZombieStateBase {
 
-	public override void OnStateEnter (Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
+	public override void OnStateUpdate (Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
 	{
-		base.OnStateEnter (animator, stateInfo, layerIndex);
-	}
-
-	public override void OnStateExit (Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
-	{
-		zombieBehaviour.ChangeState (ZombieState.Idle);
+		if (stateInfo.normalizedTime >= 1) {
+			zombieBehaviour.ChangeState (ZombieState.Idle);
+		}
 	}
 }

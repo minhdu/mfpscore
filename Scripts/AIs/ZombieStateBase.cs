@@ -10,9 +10,4 @@ public class ZombieStateBase : StateMachineBehaviour, IZombieState {
 	public void Init (ZombieBehaviour behaviour) {
 		zombieBehaviour = behaviour;
 	}
-
-	public override void OnStateEnter (Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
-	{
-		
-	}
 }

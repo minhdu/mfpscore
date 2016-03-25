@@ -2,9 +2,10 @@
 using System.Collections;
 
 public class WakeupState : ZombieStateBase {
-
-	public override void OnStateExit (Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
+	public override void OnStateUpdate (Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
 	{
-		zombieBehaviour.SetMove ();
+		if (stateInfo.normalizedTime >= 1.0f) {
+			zombieBehaviour.SetMove ();
+		}
 	}
 }

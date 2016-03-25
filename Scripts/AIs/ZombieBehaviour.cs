@@ -4,6 +4,18 @@ using System.Collections.Generic;
 
 public class ZombieBehaviour : CoroutinableMono, IEventListener {
 
+	readonly string[] stateTriggers = new string[] {
+		"Wakeup",
+		"Idle",
+		"Walk",
+		"Run",
+		"Angry",
+		"Attack",
+		"HeavyAttack",
+		"Hurt",
+		"Die"
+	};
+
 	public Zombie zombie;
 	public Animator animator;
 	NavMeshAgent navAgent;
@@ -48,7 +60,6 @@ public class ZombieBehaviour : CoroutinableMono, IEventListener {
 	}
 
 	public void Init (params Waypoint[] waypoints) {
-
 		isActive = true;
 
 		if (isInited) {
@@ -94,9 +105,10 @@ public class ZombieBehaviour : CoroutinableMono, IEventListener {
 	}
 
 	public void ChangeState (ZombieState state) {
+		Debug.Log (state);
 		if (zombie.hitPoint <= 0 && state != ZombieState.Die)
 			return;
-		animator.SetInteger ("CurrentState", (int)state);
+		animator.SetTrigger (stateTriggers[(int)state]);
 	}
 
 	public void SetDamage (ZombieState state) {
@@ -117,19 +129,32 @@ public class ZombieBehaviour : CoroutinableMono, IEventListener {
 	}
 
 	public void SetMove () {
+		if (!enableSetMove)
+			return;
+		else
+			enableSetMove = false;
 		var moveTypes = new[] {
-			ProportionValue.Create (zombie.angryRate, ZombieState.Walk),
-			ProportionValue.Create (1 - zombie.angryRate, ZombieState.Angry)
+			ProportionValue.Create (zombie.angryRate, ZombieState.Angry),
+			ProportionValue.Create (1 - zombie.angryRate, ZombieState.Walk)
 		};
 		ZombieState moveType = moveTypes.ChooseByRandom ();
-		if(moveType == ZombieState.Walk)
-			MoveAgent();
-		StartCoroutine (SetRandomBehavior ());
+		ChangeState (moveType);
+		if (moveType == ZombieState.Walk) {
+			MoveAgent ();
+			SetSpeed (ZombieState.Walk);
+		}
 	}
 
 	public void SetActive () {
 		curWaypoint = -1;
 		isActive = false;
+	}
+
+	public void SetSpeed (ZombieState state) {
+		if (state == ZombieState.Walk)
+			navAgent.speed = zombie.walkSpeed;
+		else
+			navAgent.speed = zombie.runSpeed;
 	}
 
 	public void MoveAgent () {
@@ -138,7 +163,9 @@ public class ZombieBehaviour : CoroutinableMono, IEventListener {
 		navAgent.Resume ();
 	}
 
+	bool enableSetMove = false;
 	public void Hurt (float damage) {
+		enableSetMove = true;
 		navAgent.acceleration = 90;
 		navAgent.Stop ();
 		zombie.hitPoint -= damage;
@@ -160,22 +187,6 @@ public class ZombieBehaviour : CoroutinableMono, IEventListener {
 		curWaypoint++;
 		SetMove ();
 		isReachWaypoint = false;
-	}
-
-	IEnumerator SetRandomBehavior () {
-		yield return new WaitForSeconds (zombie.randomBehaviourTime);
-		var randomRest = new[] {
-			ProportionValue.Create (zombie.randomRestRate, true),
-			ProportionValue.Create (1 - zombie.randomRestRate, false)
-		};
-		bool isRandomRest = randomRest.ChooseByRandom();
-		if (isRandomRest) {
-			ChangeState (ZombieState.Idle);
-			yield return new WaitForSeconds (Random.Range (zombie.minRestTime, zombie.maxRestTime));
-			SetMove ();
-		} else {
-			yield return null;
-		}
 	}
 	
 	bool CheckIsReachWaypoint () {

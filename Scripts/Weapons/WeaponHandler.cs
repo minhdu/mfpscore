@@ -50,7 +50,6 @@ public class WeaponHandler : Singleton<WeaponHandler> {
 				previousWeaponIndex = currentWeaponIndex;
 				currentWeaponIndex = 2;
 			}
-			Debug.Log("Subtracted");
 			myaudioSource.PlayOneShot(switchsound, 1);
 			StartCoroutine(SelectWeapon(currentWeaponIndex));
 			currentWeapon = Weapons [currentWeaponIndex].GetComponent<IGun> ();
