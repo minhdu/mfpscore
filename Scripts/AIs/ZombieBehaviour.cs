@@ -7,6 +7,7 @@ public class ZombieBehaviour : CoroutinableMono, IEventListener {
 	public Zombie zombie;
 	public Animation anim;
 	NavMeshAgent navAgent;
+	Transform mTransform;
 	public Collider[] colliders;
 	public Collider headColliders;
 
@@ -15,6 +16,9 @@ public class ZombieBehaviour : CoroutinableMono, IEventListener {
 
 	[SerializeField]
 	bool isActive = false;
+
+	[SerializeField]
+	bool haveDestination = false;
 
 	[SerializeField]
 	bool isReachWaypoint = false;
@@ -85,6 +89,7 @@ public class ZombieBehaviour : CoroutinableMono, IEventListener {
 			anim.AddClip (animClips [i], animClips[i].name);
 		}
 
+		mTransform = GetComponent<Transform> ();
 		navAgent = GetComponent<NavMeshAgent> ();
 		colliders = GetComponentsInChildren<Collider> ();
 		wayPoints = waypoints;
@@ -92,19 +97,23 @@ public class ZombieBehaviour : CoroutinableMono, IEventListener {
 
 		ListenEvents ();
 		SetNextTarget ();
+		isInited = true;
 	}
 
 	void Update () {
 		if (!isInited || !isActive)
 			return;
 
-		if (!isReachWaypoint)
+		if (!isReachWaypoint) {
 			isReachWaypoint = CheckIsReachWaypoint ();
+			if (isReachWaypoint)
+				StopAgent ();
+		}
 
 		if (isReachWaypoint && zombie.hitPoint > 0) {
 			if (wayPoints [curWaypoint].isPlayer) {
 				if (Time.time > nextAttackTime + zombie.attackCooldown) {
-					SetAttack();
+					StartCoroutine("SetAttack");
 					nextAttackTime = Time.time;
 				}
 			} else {
@@ -130,7 +139,7 @@ public class ZombieBehaviour : CoroutinableMono, IEventListener {
 		anim.wrapMode = wrapMode;
 
 		if (isCrossFade) {
-			anim.CrossFadeQueued (stateName, fadeLenght, QueueMode.PlayNow);
+			anim.CrossFade (stateName, fadeLenght);
 		} else {
 			anim.Play (stateName);
 		}
@@ -141,24 +150,23 @@ public class ZombieBehaviour : CoroutinableMono, IEventListener {
 			return clip.length;
 	}
 
-	public void SetDamage (ZombieState state) {
-		if (state == ZombieState.HeavyAttack)
-			damage = zombie.heavyDamage;
-		else
-			damage = zombie.normalDamage;
-	}
-
-	public void SetAttack () {
+	IEnumerator SetAttack () {
 		var attackTypes = new[] {
 			ProportionValue.Create (zombie.heavyAttackRate, ZombieState.HeavyAttack),
 			ProportionValue.Create (1 - zombie.heavyAttackRate, ZombieState.Attack)
 		};
 		ZombieState attackType = attackTypes.ChooseByRandom ();
-		ChangeState (attackType, WrapMode.Once);
-		SetDamage (attackType);
+		if (attackType == ZombieState.HeavyAttack)
+			damage = zombie.heavyDamage;
+		else
+			damage = zombie.normalDamage;
+		yield return new WaitForSeconds(ChangeState (attackType, WrapMode.Once));
+		if (zombie.hitPoint <= 0)
+			yield break;
+		ChangeState (ZombieState.Idle, WrapMode.Loop);
 	}
 
-	public IEnumerator SetMove () {
+	IEnumerator SetMove () {
 		if(zombie.hitPoint <=0) {
 			yield break;
 		}
@@ -182,15 +190,22 @@ public class ZombieBehaviour : CoroutinableMono, IEventListener {
 		}
 	}
 
-	public void SetActive () {
+	public void SetInActive () {
 		curWaypoint = -1;
 		isActive = false;
+		haveDestination = false;
 	}
 
-	public void MoveAgent () {
+	void MoveAgent () {
 		navAgent.SetDestination (wayPoints[curWaypoint].Position);
 		navAgent.acceleration = 8;
 		navAgent.Resume ();
+		haveDestination = true;
+	}
+
+	void StopAgent () {
+		navAgent.acceleration = 90;
+		navAgent.Stop ();
 	}
 
 	public void BeHeadShot (float damage) {
@@ -200,16 +215,17 @@ public class ZombieBehaviour : CoroutinableMono, IEventListener {
 	}
 
 	public void Die () {
+		SetInActive ();
 		for (int i = 0; i < colliders.Length; i++) {
 			colliders[i].enabled = false;
 		}
 		ChangeState(ZombieState.Die, WrapMode.Once);
 		EventDispatcher.TriggerEvent (GameEvents.GameplayEvents.ZOMBIE_DEAD);
+		Destroy (gameObject, 2);
 	}
 
 	public void Hurt (float damage) {
-		navAgent.acceleration = 90;
-		navAgent.Stop ();
+		StopAgent ();
 		zombie.hitPoint -= damage;
 		if (zombie.hitPoint <= 0) {
 			Die ();
@@ -236,7 +252,7 @@ public class ZombieBehaviour : CoroutinableMono, IEventListener {
 	}
 	
 	bool CheckIsReachWaypoint () {
-		if (!isInited)
+		if (!isInited || !isActive || !haveDestination)
 			return false;
 		if (!navAgent.pathPending) {
 			if (navAgent.remainingDistance <= navAgent.stoppingDistance) {
